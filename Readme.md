@@ -1,7 +1,7 @@
 # Проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Сергей Сусляк](https://up.htmlacademy.ru/ecmascript/13/user/1079367).
-* Наставник: `Неизвестно`.
+* Наставник: [Данил Чушко](https://htmlacademy.ru/profile/flatdesign).
 
 ---
 
