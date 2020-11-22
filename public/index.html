@@ -16,13 +16,24 @@
 
         <div class="trip-main">
           <!-- Маршрут и стоимость -->
+          <section class="trip-main__trip-info  trip-info">
+            <div class="trip-info__main">
+            </div>
+
+            <p class="trip-info__cost">
+            </p>
+          </section>
 
           <div class="trip-main__trip-controls  trip-controls">
             <h2 class="visually-hidden">Switch trip view</h2>
             <!-- Меню -->
+            <nav class="trip-controls__trip-tabs  trip-tabs">
+            </nav>
 
             <h2 class="visually-hidden">Filter events</h2>
             <!-- Фильтры -->
+            <form class="trip-filters" action="#" method="get">
+            </form>
           </div>
 
           <button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>
@@ -35,8 +46,12 @@
             <h2 class="visually-hidden">Trip events</h2>
 
             <!-- Сортировка -->
+            <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
+            </form>
 
             <!-- Контент -->
+            <ul class="trip-events__list">
+            </ul>
           </section>
       </div>
     </main>
