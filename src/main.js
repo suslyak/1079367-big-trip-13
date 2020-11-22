@@ -47,11 +47,11 @@ let veiwsToRender = [
     container: sortElement
   },
   {
-    view: newCreatePointView,
+    view: newEditPointView,
     container: eventsListElement
   },
   {
-    view: newEditPointView,
+    view: newCreatePointView,
     container: eventsListElement
   },
   {
@@ -70,7 +70,6 @@ let veiwsToRender = [
 
 const render = (view, container) => {
   container.innerHTML += view.getRawHtmlTemplate();
-
 };
 
 veiwsToRender.forEach((objectToRender) => {
