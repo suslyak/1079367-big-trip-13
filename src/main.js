@@ -1,78 +1,58 @@
-import tripInfoView from './view/trip-info.js';
-import tripCostView from './view/trip-cost.js';
-import mainMenuView from './view/main-menu.js';
-import tripFiltersView from './view/trip-filters.js';
-import tripSortView from './view/trip-sort.js';
-import createPointView from './view/create-trip-point.js';
-import editPointView from './view/edit-trip-point.js';
-import tripPoint from './view/trip-point.js';
-
-const newTripInfoView = tripInfoView()();
-const newTripCostView = tripCostView()();
-const newMainMenuView = mainMenuView()();
-const newTripFiltersView = tripFiltersView()();
-const newTripSortView = tripSortView()();
-const newCreatePointView = createPointView()();
-const newEditPointView = editPointView()();
-const newTripPoint = tripPoint()();
+import {getTripInfoTemplate} from './view/trip-info.js';
+import {getTripCostTemplate} from './view/trip-cost.js';
+import {getMenuTemplate} from './view/main-menu.js';
+import {getFilterTemplate} from './view/trip-filters.js';
+import {getSortingsTemplate} from './view/trip-sort.js';
+import {getEventsListTemplate} from './view/trip-events.js';
+import {getCreatePointTemplate} from './view/create-trip-point.js';
+import {getEditPointTemplate} from './view/edit-trip-point.js';
+import {getPiontTemplate} from './view/trip-point.js';
 
 const pageHeaderElement = document.querySelector(`.page-header`);
-const tripInfoElement = pageHeaderElement.querySelector(`.trip-info__main`);
-const tripCostElement = pageHeaderElement.querySelector(`.trip-info__cost`);
-const menuElement = pageHeaderElement.querySelector(`nav`);
-const filtersElement = pageHeaderElement.querySelector(`.trip-filters`);
 const pageMainElement = document.querySelector(`.page-main`);
-const sortElement = pageMainElement.querySelector(`.trip-sort`);
-const eventsListElement = pageMainElement.querySelector(`.trip-events__list`);
+const tripMainElement = pageHeaderElement.querySelector(`.trip-main`);
+const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
+const eventsElement = pageMainElement.querySelector(`.trip-events`);
 
-let veiwsToRender = [
-  {
-    view: newTripInfoView,
-    container: tripInfoElement
-  },
-  {
-    view: newTripCostView,
-    container: tripCostElement
-  },
-  {
-    view: newMainMenuView,
-    container: menuElement
-  },
-  {
-    view: newTripFiltersView,
-    container: filtersElement
-  },
-  {
-    view: newTripSortView,
-    container: sortElement
-  },
-  {
-    view: newEditPointView,
-    container: eventsListElement
-  },
-  {
-    view: newCreatePointView,
-    container: eventsListElement
-  },
-  {
-    view: newTripPoint,
-    container: eventsListElement
-  },
-  {
-    view: newTripPoint,
-    container: eventsListElement
-  },
-  {
-    view: newTripPoint,
-    container: eventsListElement
-  }
-];
-
-const render = (view, container) => {
-  container.innerHTML += view.getRawHtmlTemplate();
+const createNode = (template) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = template;
+  return newElement;
 };
 
-veiwsToRender.forEach((objectToRender) => {
-  render(objectToRender.view, objectToRender.container);
-});
+const insertLinearly = (container, content, place) => {
+  if (typeof (place) === `string`) {
+    container.insertAdjacentHTML(place, content);
+  }
+};
 
+const insertPointly = (container, content, referenceElement) => {
+  if (typeof (referenceElement) === `object`) {
+    container.insertBefore(createNode(content), referenceElement);
+  }
+};
+
+const render = (container, template, place, insertMethod) => {
+  insertMethod(container, template, place);
+};
+
+render(tripMainElement, getTripInfoTemplate(), `afterbegin`, insertLinearly);
+
+const tripInfoElement = pageHeaderElement.querySelector(`.trip-info`);
+
+render(tripInfoElement, getTripCostTemplate(), `beforeend`, insertLinearly);
+
+const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
+
+render(tripControlsElement, getMenuTemplate(), menuReferenceElement, insertPointly);
+render(tripControlsElement, getFilterTemplate(), `beforeend`, insertLinearly);
+render(eventsElement, getSortingsTemplate(), `beforeend`, insertLinearly);
+render(eventsElement, getEventsListTemplate(), `beforeend`, insertLinearly);
+
+const tripEventsListElement = eventsElement.querySelector(`.trip-events__list`);
+
+render(tripEventsListElement, getEditPointTemplate(), `beforeend`, insertLinearly);
+render(tripEventsListElement, getCreatePointTemplate(), `beforeend`, insertLinearly);
+render(tripEventsListElement, getPiontTemplate(), `beforeend`, insertLinearly);
+render(tripEventsListElement, getPiontTemplate(), `beforeend`, insertLinearly);
+render(tripEventsListElement, getPiontTemplate(), `beforeend`, insertLinearly);
