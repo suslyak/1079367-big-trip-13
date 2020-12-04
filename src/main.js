@@ -7,6 +7,7 @@ import {getEventsListTemplate} from './view/trip-events.js';
 import {getCreatePointTemplate} from './view/create-trip-point.js';
 import {getEditPointTemplate} from './view/edit-trip-point.js';
 import {getPiontTemplate} from './view/trip-point.js';
+import {generatePoint} from './mock/trip-point.js';
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -53,6 +54,6 @@ const tripEventsListElement = eventsElement.querySelector(`.trip-events__list`);
 
 render(tripEventsListElement, getEditPointTemplate(), `beforeend`, insertLinearly);
 render(tripEventsListElement, getCreatePointTemplate(), `beforeend`, insertLinearly);
-render(tripEventsListElement, getPiontTemplate(), `beforeend`, insertLinearly);
-render(tripEventsListElement, getPiontTemplate(), `beforeend`, insertLinearly);
-render(tripEventsListElement, getPiontTemplate(), `beforeend`, insertLinearly);
+render(tripEventsListElement, getPiontTemplate(generatePoint()), `beforeend`, insertLinearly);
+render(tripEventsListElement, getPiontTemplate(generatePoint()), `beforeend`, insertLinearly);
+render(tripEventsListElement, getPiontTemplate(generatePoint()), `beforeend`, insertLinearly);
