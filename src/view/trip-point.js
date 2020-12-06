@@ -1,12 +1,18 @@
 const getOffers = (offers) => {
   let offerListItemEliments = ``;
-  for (const offer of offers) {
+  if (offers.length > 0) {
     offerListItemEliments += `
-      <li class="event__offer">
-        <span class="event__offer-title">${offer.title}</span>
-        &plus;&euro;&nbsp;
-        <span class="event__offer-price">${offer.cost}</span>
-      </li>`;
+    <h4 class="visually-hidden">Offers:</h4>
+      <ul class="event__selected-offers">`;
+    for (const offer of offers) {
+      offerListItemEliments += `
+        <li class="event__offer">
+          <span class="event__offer-title">${offer.title}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${offer.cost}</span>
+        </li>`;
+    }
+    offerListItemEliments += `</ul>`;
   }
 
   return offerListItemEliments;
@@ -20,7 +26,7 @@ export const getPiontTemplate = (point) => {
       <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="${point.eventTypeIcon}" alt="Event type icon">
       </div>
-      <h3 class="event__title">${point.eventType} ${point.destination.name}</h3>
+      <h3 class="event__title">${point.eventType.title} ${point.destination.name}</h3>
       <div class="event__schedule">
           <p class="event__time">
           <time class="event__start-time" datetime="${point.startDate.format(`YYYY-MM-DDTHH:mm`).toString()}">${point.startDate.format(`HH:mm`).toString()}</time>
@@ -32,10 +38,7 @@ export const getPiontTemplate = (point) => {
       <p class="event__price">
           &euro;&nbsp;<span class="event__price-value">${point.cost}</span>
       </p>
-      <h4 class="visually-hidden">Offers:</h4>
-      <ul class="event__selected-offers">
         ${getOffers(point.offers)}
-      </ul>
       <button class="event__favorite-btn ${point.favorite ? `event__favorite-btn--active` : `` }" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
