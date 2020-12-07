@@ -59,6 +59,8 @@ const tripTimeGap = {
   end: tripPoints.slice(-1)[0].endDate
 };
 
+const tripCost = tripPoints.reduce((total, point) => total + point.cost, 0);
+
 const render = (container, template, place, insertMethod) => {
   insertMethod(container, template, place);
 };
@@ -67,7 +69,7 @@ render(tripMainElement, getTripInfoTemplate(tripDestinationsGraph, tripTimeGap),
 
 const tripInfoElement = pageHeaderElement.querySelector(`.trip-info`);
 
-render(tripInfoElement, getTripCostTemplate(), `beforeend`, insertLinearly);
+render(tripInfoElement, getTripCostTemplate(tripCost), `beforeend`, insertLinearly);
 
 const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
 
