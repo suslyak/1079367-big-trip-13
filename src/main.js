@@ -8,6 +8,7 @@ import {getEditPointTemplate} from './view/edit-trip-point.js';
 import {getPiontTemplate} from './view/trip-point.js';
 import {generatePoint} from './mock/trip-point.js';
 import {generateDestinations} from './mock/destinations.js';
+import {generateFilter} from "./mock/filter.js";
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -71,7 +72,7 @@ render(tripInfoElement, getTripCostTemplate(tripCost), `beforeend`, insertLinear
 const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
 
 render(tripControlsElement, getMenuTemplate(), menuReferenceElement, insertPointly);
-render(tripControlsElement, getFilterTemplate(), `beforeend`, insertLinearly);
+render(tripControlsElement, getFilterTemplate(generateFilter(tripPoints)), `beforeend`, insertLinearly);
 render(eventsElement, getSortingsTemplate(), `beforeend`, insertLinearly);
 render(eventsElement, getEventsListTemplate(), `beforeend`, insertLinearly);
 
