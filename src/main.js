@@ -34,11 +34,8 @@ const insertPointly = (container, content, referenceElement) => {
 };
 
 const destinations = generateDestinations();
-const tripPoints = [];
 
-for (let i = 0; i < 15; i++) {
-  tripPoints.push(generatePoint());
-}
+const tripPoints = new Array(15).fill().map(generatePoint);
 
 const sortByStartDates = (a, b) => {
   if (a.startDate.isBefore(b.startDate)) {
