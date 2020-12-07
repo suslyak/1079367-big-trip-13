@@ -2,13 +2,14 @@ import {getTripInfoTemplate} from './view/trip-info.js';
 import {getTripCostTemplate} from './view/trip-cost.js';
 import {getMenuTemplate} from './view/main-menu.js';
 import {getFilterTemplate} from './view/trip-filters.js';
-import {getSortingsTemplate} from './view/trip-sort.js';
+import {getSortingTemplate} from './view/trip-sort.js';
 import {getEventsListTemplate} from './view/trip-events.js';
 import {getEditPointTemplate} from './view/edit-trip-point.js';
 import {getPiontTemplate} from './view/trip-point.js';
 import {generatePoint} from './mock/trip-point.js';
 import {generateDestinations} from './mock/destinations.js';
 import {generateFilter} from "./mock/filter.js";
+import {generateSorting} from "./mock/sortings.js";
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -73,7 +74,7 @@ const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
 
 render(tripControlsElement, getMenuTemplate(), menuReferenceElement, insertPointly);
 render(tripControlsElement, getFilterTemplate(generateFilter(tripPoints)), `beforeend`, insertLinearly);
-render(eventsElement, getSortingsTemplate(), `beforeend`, insertLinearly);
+render(eventsElement, getSortingTemplate(generateSorting(tripPoints)), `beforeend`, insertLinearly);
 render(eventsElement, getEventsListTemplate(), `beforeend`, insertLinearly);
 
 const tripEventsListElement = eventsElement.querySelector(`.trip-events__list`);
