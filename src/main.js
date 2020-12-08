@@ -8,8 +8,10 @@ import {getEditPointTemplate} from './view/edit-trip-point.js';
 import {getPiontTemplate} from './view/trip-point.js';
 import {generatePoint} from './mock/trip-point.js';
 import {generateDestinations} from './mock/destinations.js';
-import {generateFilter} from "./mock/filter.js";
-import {generateSorting} from "./mock/sortings.js";
+import {generateFilter} from './mock/filter.js';
+import {generateSorting} from './mock/sortings.js';
+
+import {sortByStartDates} from './utils.js';
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -36,19 +38,7 @@ const insertPointly = (container, content, referenceElement) => {
 };
 
 const destinations = generateDestinations();
-
 const tripPoints = new Array(15).fill().map(generatePoint);
-
-const sortByStartDates = (a, b) => {
-  if (a.startDate.isBefore(b.startDate)) {
-    return -1;
-  }
-  if (b.startDate.isBefore(a.startDate)) {
-    return 1;
-  }
-
-  return 0;
-};
 
 tripPoints.sort(sortByStartDates);
 

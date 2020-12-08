@@ -22,16 +22,16 @@ export const getPiontTemplate = (point) => {
   return `
     <li class="trip-events__item">
       <div class="event">
-      <time class="event__date" datetime="${point.startDate.format(`YYYY-MM-DDTHH:mm`).toString()}">${point.startDate.format(`MMM DD`)}</time>
+      <time class="event__date" datetime="${point.startDate.format(`YYYY-MM-DDTHH:mm`)}">${point.startDate.format(`MMM DD`)}</time>
       <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="${point.eventTypeIcon}" alt="Event type icon">
       </div>
       <h3 class="event__title">${point.eventType.title} ${point.destination.name}</h3>
       <div class="event__schedule">
           <p class="event__time">
-          <time class="event__start-time" datetime="${point.startDate.format(`YYYY-MM-DDTHH:mm`).toString()}">${point.startDate.format(`HH:mm`).toString()}</time>
+          <time class="event__start-time" datetime="${point.startDate.format(`YYYY-MM-DDTHH:mm`)}">${point.startDate.format(`HH:mm`)}</time>
           &mdash;
-          <time class="event__end-time" datetime="${point.endDate.format(`YYYY-MM-DDTHH:mm`).toString()}">${point.endDate.format(`HH:mm`).toString()}</time>
+          <time class="event__end-time" datetime="${point.endDate.format(`YYYY-MM-DDTHH:mm`)}">${point.endDate.format(`HH:mm`)}</time>
           </p>
           <p class="event__duration">${point.duration}</p>
       </div>

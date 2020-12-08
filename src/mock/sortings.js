@@ -1,24 +1,4 @@
-const sortByStartDates = (a, b) => {
-  if (a.startDate.isBefore(b.startDate)) {
-    return -1;
-  }
-  if (b.startDate.isBefore(a.startDate)) {
-    return 1;
-  }
-
-  return 0;
-};
-
-const sortByPrice = (a, b) => {
-  if (b.cost < a.cost) {
-    return -1;
-  }
-  if (b.cost > a.cost) {
-    return 1;
-  }
-
-  return 0;
-};
+import {sortByStartDates, sortByPrice} from '../utils.js';
 
 const sortingsMap = {
   day: (points) => ({result: points.filter(() => true), disabled: false}),
