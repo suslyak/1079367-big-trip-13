@@ -3,7 +3,7 @@ import {generateDestinations} from './destinations.js';
 
 import {randomInt, getRandomArrayElement} from '../utils.js';
 
-const OFFERS = {
+export const OFFERS = {
   'taxi': [
     {name: `taxi`, title: `Салон, прокуренный не папиросами, а благородными сигаретами с фильтром`, cost: 10},
     {name: `taxi`, title: `Есть ремень безопасности`, cost: 10},
@@ -37,16 +37,16 @@ const OFFERS = {
 };
 
 export const POINT_TYPES = [
-  {title: `taxi`, iconSrc: `img/icons/taxi.png`, offers: OFFERS[`taxi`]},
-  {title: `bus`, iconSrc: `img/icons/bus.png`, offers: []},
-  {title: `train`, iconSrc: `img/icons/train.png`, offers: OFFERS[`train`]},
-  {title: `ship`, iconSrc: `img/icons/ship.png`, offers: OFFERS[`ship`]},
-  {title: `transport`, iconSrc: `img/icons/transport.png`, offers: []},
-  {title: `flight`, iconSrc: `img/icons/flight.png`, offers: OFFERS[`flight`]},
-  {title: `drive`, iconSrc: `img/icons/drive.png`, offers: []},
-  {title: `check-in`, iconSrc: `img/icons/check-in.png`, offers: OFFERS[`check-in`]},
-  {title: `sightseeing`, iconSrc: `img/icons/sightseeing.png`, offers: OFFERS[`sightseeing`]},
-  {title: `restaurant`, iconSrc: `img/icons/restaurant.png`, offers: []},
+  `taxi`,
+  `bus`,
+  `train`,
+  `ship`,
+  `transport`,
+  `flight`,
+  `drive`,
+  `check-in`,
+  `sightseeing`,
+  `restaurant`,
 ];
 
 export const generateDates = () => {
@@ -61,33 +61,20 @@ export const generateDates = () => {
 };
 
 export const generatePoint = () => {
-  const dates = generateDates();
+  const {start, end} = generateDates();
   const pointType = getRandomArrayElement(POINT_TYPES);
-  const offers = pointType.offers.filter(() => Boolean(randomInt(0, 1)));
+  const offers = (pointType in OFFERS) ? OFFERS[pointType].filter(() => Boolean(randomInt(0, 1))) : [];
   const destination = getRandomArrayElement(generateDestinations());
-  const startDate = dates.start;
-  const endDate = dates.end;
   const cost = randomInt(50, 250);
   const favorite = Boolean(randomInt(0, 1));
-  const termDays = endDate.diff(startDate, `days`);
-  const termHours = endDate.diff(startDate, `hours`) - termDays * 24;
-  const termMinutes = endDate.diff(startDate, `minutes`) - (termHours + termDays * 24) * 60;
-  const duration = [
-    termDays ? `${termDays.toString().padStart(2, `0`)}D` : ``,
-    (termDays || termHours) ? `${termHours.toString().padStart(2, `0`)}H` : ``,
-    `${termMinutes.toString().padStart(2, `0`)}M`
-  ]
-  .filter((term) => term);
 
   return {
-    eventType: pointType,
-    eventTypeIcon: pointType.iconSrc,
+    pointType,
     offers,
     destination,
-    startDate,
-    endDate,
+    start,
+    end,
     cost,
     favorite,
-    duration: duration.join(` `)
   };
 };

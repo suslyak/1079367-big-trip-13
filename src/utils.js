@@ -10,10 +10,10 @@ export const getRandomArrayElement = (arr) => arr[randomInt(0, arr.length - 1)];
 export const sortByStartDates = (a, b) => {
   // сортирует объекты dayjs
 
-  if (a.startDate.isBefore(b.startDate)) {
+  if (a.start.isBefore(b.start)) {
     return -1;
   }
-  if (b.startDate.isBefore(a.startDate)) {
+  if (b.start.isBefore(a.start)) {
     return 1;
   }
 

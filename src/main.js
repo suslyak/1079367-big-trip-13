@@ -7,7 +7,6 @@ import {getEventsListTemplate} from './view/trip-events.js';
 import {getEditPointTemplate} from './view/edit-trip-point.js';
 import {getPiontTemplate} from './view/trip-point.js';
 import {generatePoint} from './mock/trip-point.js';
-import {generateDestinations} from './mock/destinations.js';
 import {generateFilter} from './mock/filter.js';
 import {generateSorting} from './mock/sortings.js';
 
@@ -37,15 +36,16 @@ const insertPointly = (container, content, referenceElement) => {
   }
 };
 
-const destinations = generateDestinations();
-const tripPoints = new Array(15).fill().map(generatePoint);
+const tripPoints = new Array(20).fill().map(generatePoint);
+const destinations = Array.from(new Set(tripPoints.map((point) => point.destination.name)));
 
+destinations.sort();
 tripPoints.sort(sortByStartDates);
 
 const tripDestinationsGraph = Array.from(new Set(tripPoints.map((point) => point.destination.name)));
 const tripTimeGap = {
-  start: tripPoints[0].startDate,
-  end: tripPoints.slice(-1)[0].endDate
+  start: tripPoints[0].start,
+  end: tripPoints.slice(-1)[0].end
 };
 
 const tripCost = tripPoints.reduce((total, point) => total + point.cost, 0);

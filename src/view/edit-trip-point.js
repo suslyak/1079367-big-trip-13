@@ -1,19 +1,25 @@
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
+
 import {POINT_TYPES} from '../mock/trip-point.js';
+import {OFFERS} from '../mock/trip-point.js';
 
 import {randomInt} from '../utils.js';
 
 export const getEditPointTemplate = (point = {}, destinationsAvailable = []) => {
   const isEmpty = Object.keys(point).length === 0;
   const {
-    eventType = POINT_TYPES[5],
-    eventTypeIcon = POINT_TYPES[5].iconSrc,
-    offers = POINT_TYPES[5].offers,
+    pointType = POINT_TYPES[5],
+    offers = OFFERS[pointType],
     destination = {},
     startDate = dayjs(),
     endDate = dayjs(),
     cost = ``
   } = point;
+
+  // В принципе, не обязательно, т.к. в ТЗ может быть открыта одновременно только одна форма,
+  // но вдруг это изменится в будущем.
+  const idForInputs = nanoid(8);
 
   const drawRollUpButton = () => {
     if (!isEmpty) {
@@ -27,14 +33,36 @@ export const getEditPointTemplate = (point = {}, destinationsAvailable = []) => 
   };
 
   const getDestinationsOptions = () => {
-    let destinationsOptionElements = ``;
     if (destinationsAvailable.length > 0) {
-      for (const option of destinationsAvailable) {
-        destinationsOptionElements += `<option value="${option.name}"></option>`;
-      }
+      return destinationsAvailable.reduce((destinationsOptionElements, option) => (
+        destinationsOptionElements + `<option value="${option}"></option>`
+      ), ``);
     }
 
-    return destinationsOptionElements;
+    return ``;
+  };
+
+  const getDestinationPictures = () => {
+    if (destination.description.pictures.length > 0) {
+      return destination.description.pictures.reduce((destinationsPictureElements, picture) => (
+        destinationsPictureElements + `<img class="event__photo" src="${picture}" alt="Event photo">`
+      ), ``);
+    }
+
+    return ``;
+  };
+
+  const getPicturesTemplate = () => {
+    if (destination.description.pictures.length > 0) {
+      return `
+      <div class="event__photos-container">
+        <div class="event__photos-tape">
+          ${getDestinationPictures()}
+        </div>
+      </div>`;
+    }
+
+    return ``;
   };
 
   const getDestinationInfo = () => {
@@ -43,44 +71,22 @@ export const getEditPointTemplate = (point = {}, destinationsAvailable = []) => 
         <section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
           <p class="event__destination-description">${destination.description.text}</p>
-          ${getDestinationPictures()}
+          ${getPicturesTemplate()}
         </section>`;
     }
 
     return ``;
   };
 
-  const getDestinationPictures = () => {
-    let destinationsPictureElements = ``;
-    if (destination.description.pictures.length > 0) {
-      let destinationPictures = destination.description.pictures;
-      destinationsPictureElements += `<div class="event__photos-container"><div class="event__photos-tape">`;
-
-      for (const picture of destinationPictures) {
-        destinationsPictureElements += `<img class="event__photo" src="${picture}" alt="Event photo">`;
-      }
-
-      destinationsPictureElements += `</div></div>`;
-    }
-
-    return destinationsPictureElements;
-  };
-
   const getOffers = () => {
-    let offersElements = ``;
     let checked = Boolean;
 
     if (offers.length > 0) {
-      offersElements += `
-        <section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-            <div class="event__available-offers">`;
-
-      let offerIndex = 1;
-      for (const offer of offers) {
+      return offers.map((offer) => {
+        let offerIndex = nanoid(8);
         checked = isEmpty ? !isEmpty : Boolean(randomInt(0, 1));
 
-        offersElements += `
+        return `
           <div class="event__offer-selector">
             <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-${offerIndex}" type="checkbox" name="event-offer-${offer.name}" ${checked ? `checked` : ``}>
             <label class="event__offer-label" for="event-offer-${offer.name}-${offerIndex}">
@@ -89,14 +95,34 @@ export const getEditPointTemplate = (point = {}, destinationsAvailable = []) => 
               <span class="event__offer-price">${offer.cost}</span>
             </label>
           </div>`;
-
-        offerIndex++;
-      }
-
-      offersElements += `</div></section>`;
+      }).join(``);
     }
 
-    return offersElements;
+    return ``;
+  };
+
+  const getOffersTemplate = () => {
+    if (offers.length > 0) {
+      return `
+        <section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+          <div class="event__available-offers">
+            ${getOffers()}
+          </div>
+        </section>`;
+    }
+
+    return ``;
+  };
+
+  const drowAvailableTypes = () => {
+    return POINT_TYPES.reduce((typesInputElements, type) => (
+      typesInputElements + `
+        <div class="event__type-item">
+          <input id="event-type-${type}-${idForInputs}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+          <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${idForInputs}">${type.slice(0, 1).toUpperCase() + type.slice(1)}</label>
+        </div>`
+    ), ``);
   };
 
   return `
@@ -104,101 +130,52 @@ export const getEditPointTemplate = (point = {}, destinationsAvailable = []) => 
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
-            <label class="event__type  event__type-btn" for="event-type-toggle-1">
+            <label class="event__type  event__type-btn" for="event-type-toggle-${idForInputs}">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="${eventTypeIcon}" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${pointType}.png" alt="Event type icon">
             </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${idForInputs}" type="checkbox">
 
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-
-                <div class="event__type-item">
-                  <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-                  <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-                  <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-                  <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-                  <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-transport-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="transport">
-                  <label class="event__type-label  event__type-label--transport" for="event-type-transport-1">Transport</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-                  <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked>
-                  <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-                  <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-                  <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-                </div>
-
-                <div class="event__type-item">
-                  <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-                  <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-                </div>
+                ${drowAvailableTypes()}
               </fieldset>
             </div>
           </div>
 
           <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-1">
-              ${eventType.title}
+            <label class="event__label  event__type-output" for="event-destination-${idForInputs}">
+              ${pointType}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name ? destination.name : ``}" list="destination-list-1">
-            <datalist id="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-${idForInputs}" type="text" name="event-destination" value="${destination.name ? destination.name : ``}" list="destination-list-${idForInputs}">
+            <datalist id="destination-list-${idForInputs}">
               ${getDestinationsOptions()}
             </datalist>
           </div>
 
           <div class="event__field-group  event__field-group--time">
-            <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startDate.format(`DD/MM/YY hh:mm`)}">
+            <label class="visually-hidden" for="event-start-time-${idForInputs}">From</label>
+            <input class="event__input  event__input--time" id="event-start-time-${idForInputs}" type="text" name="event-start-time" value="${startDate.format(`DD/MM/YY hh:mm`)}">
             &mdash;
-            <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endDate.format(`DD/MM/YY hh:mm`)}">
+            <label class="visually-hidden" for="event-end-time-${idForInputs}">To</label>
+            <input class="event__input  event__input--time" id="event-end-time-${idForInputs}" type="text" name="event-end-time" value="${endDate.format(`DD/MM/YY hh:mm`)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
-            <label class="event__label" for="event-price-1">
+            <label class="event__label" for="event-price-${idForInputs}">
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${cost}">
+            <input class="event__input  event__input--price" id="event-price-${idForInputs}" type="text" name="event-price" value="${cost}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">${ isEmpty ? `Cancel` : `Delete`}</button>
+          <button class="event__reset-btn" type="reset">${isEmpty ? `Cancel` : `Delete`}</button>
           ${drawRollUpButton()}
         </header>
         <section class="event__details">
-          ${getOffers()}
+          ${getOffersTemplate()}
           ${getDestinationInfo()}
         </section>
       </form>
