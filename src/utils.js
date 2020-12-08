@@ -8,7 +8,7 @@ export const randomInt = (a = 1, b = 0) => {
 export const getRandomArrayElement = (arr) => arr[randomInt(0, arr.length - 1)];
 
 export const sortByStartDates = (a, b) => {
-  //сортирует объекты dayjs
+  // сортирует объекты dayjs
 
   if (a.startDate.isBefore(b.startDate)) {
     return -1;
@@ -21,7 +21,7 @@ export const sortByStartDates = (a, b) => {
 };
 
 export const sortByPrice = (a, b) => {
-  //сортирует объекты, имеющие свойство cost
+  // сортирует объекты, имеющие свойство cost
 
   if (b.cost < a.cost) {
     return -1;
