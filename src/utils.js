@@ -32,3 +32,36 @@ export const sortByPrice = (a, b) => {
 
   return 0;
 };
+
+export const RenderPosition = {
+  AFTERBEGIN: `afterbegin`,
+  BEFOREEND: `beforeend`
+};
+
+export const renderElement = (container, element, place) => {
+  if (typeof (place) === `string`) {
+    switch (place) {
+      case RenderPosition.AFTERBEGIN:
+        container.prepend(createNode(element));
+        break;
+      case RenderPosition.BEFOREEND:
+        container.append(createNode(element));
+        break;
+    }
+  }
+
+  if (typeof (place) === `object`) {
+    container.insertBefore(createNode(element), place);
+  }
+};
+
+export const renderTemplate = (container, template, place) => {
+  container.insertAdjacentHTML(place, template);
+};
+
+const createNode = (template) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = template;
+
+  return newElement.firstElementChild;
+};
