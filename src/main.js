@@ -1,17 +1,18 @@
-import {getTripInfoTemplate} from './view/trip-info.js';
-import {getTripCostTemplate} from './view/trip-cost.js';
-import {getMenuTemplate} from './view/main-menu.js';
-import {getFilterTemplate} from './view/trip-filters.js';
-import {getSortingTemplate} from './view/trip-sort.js';
-import {getEventsListTemplate} from './view/trip-events.js';
-import {getEditPointTemplate} from './view/edit-trip-point.js';
-import {getPiontTemplate} from './view/trip-point.js';
+import TripInfo from './view/trip-info.js';
+import TripCost from './view/trip-cost.js';
+import Menu from './view/main-menu.js';
+import Filter from './view/trip-filters.js';
+import Sorting from './view/trip-sort.js';
+import Events from './view/trip-events.js';
+import EditPointForm from './view/edit-trip-point.js';
+import TripPoint from './view/trip-point.js';
+import {getNavigationLinks} from './mock/navigation.js';
 import {generatePoint} from './mock/trip-point.js';
 import {generateFilter} from './mock/filter.js';
 import {generateSorting} from './mock/sortings.js';
 
 import {sortByStartDates} from './utils.js';
-import {renderElement, renderTemplate} from './utils.js';
+import {renderElement} from './utils.js';
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -33,24 +34,34 @@ const tripTimeGap = {
 
 const tripCost = tripPoints.reduce((total, point) => total + point.cost, 0);
 
-renderTemplate(tripMainElement, getTripInfoTemplate(tripDestinationsGraph, tripTimeGap), `afterbegin`);
+renderElement(tripMainElement, new TripInfo(tripDestinationsGraph, tripTimeGap).getElement(), `afterbegin`);
 
 const tripInfoElement = pageHeaderElement.querySelector(`.trip-info`);
 
-renderTemplate(tripInfoElement, getTripCostTemplate(tripCost), `beforeend`);
+renderElement(tripInfoElement, new TripCost(tripCost).getElement(), `beforeend`);
 
 const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
 
-renderElement(tripControlsElement, getMenuTemplate(), menuReferenceElement);
-renderTemplate(tripControlsElement, getFilterTemplate(generateFilter(tripPoints)), `beforeend`);
-renderTemplate(eventsElement, getSortingTemplate(generateSorting(tripPoints)), `beforeend`);
-renderTemplate(eventsElement, getEventsListTemplate(), `beforeend`);
+renderElement(tripControlsElement, new Menu(getNavigationLinks()).getElement(), menuReferenceElement);
+renderElement(tripControlsElement, new Filter(generateFilter(tripPoints)).getElement(), `beforeend`);
+renderElement(eventsElement, new Sorting(generateSorting(tripPoints)).getElement(), `beforeend`);
+renderElement(eventsElement, new Events().getElement(), `beforeend`);
 
 const tripEventsListElement = eventsElement.querySelector(`.trip-events__list`);
 
-renderTemplate(tripEventsListElement, getEditPointTemplate(tripPoints[0], destinations), `beforeend`);
-renderTemplate(tripEventsListElement, getEditPointTemplate({}, destinations), `beforeend`);
+for (const tripPoint of tripPoints) {
+  const EditPointFormElement = new EditPointForm(tripPoint).getElement();
+  const TripPointElement = new TripPoint(tripPoint).getElement();
 
-for (const tripPoint of tripPoints.slice(1)) {
-  renderTemplate(tripEventsListElement, getPiontTemplate(tripPoint), `beforeend`);
+  TripPointElement.querySelector(`.event__rollup-btn`)
+  .addEventListener(`click`, () => {
+    tripEventsListElement.replaceChild(EditPointFormElement, TripPointElement);
+  });
+
+  EditPointFormElement.querySelector(`.event__rollup-btn`)
+  .addEventListener(`click`, () => {
+    tripEventsListElement.replaceChild(TripPointElement, EditPointFormElement);
+  });
+
+  renderElement(tripEventsListElement, TripPointElement, `beforeend`);
 }

@@ -1,3 +1,5 @@
+import {createElement} from "../utils.js";
+
 const getSortingItems = (sorting, isChecked) => {
   const {
     name,
@@ -11,13 +13,32 @@ const getSortingItems = (sorting, isChecked) => {
     </div>`;
 };
 
-export const getSortingTemplate = (sortings) => {
-  const sortingItems = sortings
+export default class Sorting {
+  constructor(sortings = []) {
+    this._element = null;
+    this._sortings = sortings;
+  }
+
+  getTemplate() {
+    const sortingItems = this._sortings
     .map((sorting, index) => getSortingItems(sorting, index === 0))
     .join(``);
 
-  return `
-    <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
-      ${sortingItems}
-    </form>`;
-};
+    return `
+      <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
+        ${sortingItems}
+      </form>`;
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

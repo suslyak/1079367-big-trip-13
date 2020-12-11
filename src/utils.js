@@ -42,24 +42,27 @@ export const renderElement = (container, element, place) => {
   if (typeof (place) === `string`) {
     switch (place) {
       case RenderPosition.AFTERBEGIN:
-        container.prepend(createNode(element));
+        container.prepend(element);
         break;
       case RenderPosition.BEFOREEND:
-        container.append(createNode(element));
+        container.append(element);
         break;
     }
   }
 
   if (typeof (place) === `object`) {
-    container.insertBefore(createNode(element), place);
+    container.insertBefore(element, place);
   }
 };
 
+// Пока оставлю эту фнкцию, для возможности рендерить разное барахло,
+// передавая в неё результат метода getTemplate view-класса, вместо getElement.
+// renderTemplate(контейнер, КлассТеплейта.getTemplate() , место)
 export const renderTemplate = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
 
-const createNode = (template) => {
+export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
 
