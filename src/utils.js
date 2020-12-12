@@ -32,3 +32,39 @@ export const sortByPrice = (a, b) => {
 
   return 0;
 };
+
+export const RenderPosition = {
+  AFTERBEGIN: `afterbegin`,
+  BEFOREEND: `beforeend`
+};
+
+export const renderElement = (container, element, place) => {
+  if (typeof (place) === `string`) {
+    switch (place) {
+      case RenderPosition.AFTERBEGIN:
+        container.prepend(element);
+        break;
+      case RenderPosition.BEFOREEND:
+        container.append(element);
+        break;
+    }
+  }
+
+  if (typeof (place) === `object`) {
+    container.insertBefore(element, place);
+  }
+};
+
+// Пока оставлю эту фнкцию, для возможности рендерить разное барахло,
+// передавая в неё результат метода getTemplate view-класса, вместо getElement.
+// renderTemplate(контейнер, КлассТеплейта.getTemplate() , место)
+export const renderTemplate = (container, template, place) => {
+  container.insertAdjacentHTML(place, template);
+};
+
+export const createElement = (template) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = template;
+
+  return newElement.firstElementChild;
+};
