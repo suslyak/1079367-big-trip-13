@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
-import {randomInt} from '../utils.js';
+import {randomInt} from '../utils/common.js';
 import AbstractView from './abstract.js';
 
 import {POINT_TYPES} from '../mock/trip-point.js';
@@ -63,6 +63,8 @@ export default class EditPointForm extends AbstractView {
     // В принципе, не обязательно, т.к. в ТЗ может быть открыта одновременно только одна форма,
     // но вдруг это изменится в будущем.
     this._idForInputs = nanoid(8);
+
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   drawRollUpButton() {
@@ -189,5 +191,15 @@ export default class EditPointForm extends AbstractView {
           </section>
         </form>
       </li>`;
+  }
+
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
+  }
+
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
   }
 }

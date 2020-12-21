@@ -1,4 +1,4 @@
-import AbstractView from "./abstract.js";
+import AbstractView from './abstract.js';
 
 export default class Events extends AbstractView {
   getTemplate() {

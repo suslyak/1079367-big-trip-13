@@ -1,4 +1,4 @@
-import AbstractView from "./abstract.js";
+import AbstractView from './abstract.js';
 
 const getFilterItems = (filter, isChecked) => {
   const {name} = filter;

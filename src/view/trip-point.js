@@ -1,4 +1,4 @@
-import AbstractView from "./abstract.js";
+import AbstractView from './abstract.js';
 
 const getOffers = (offers) => {
   return offers.reduce((offersListElements, offer) => (
@@ -43,6 +43,8 @@ export default class TripPoint extends AbstractView {
     this._end = end;
     this._cost = cost;
     this._favorite = favorite;
+
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   getDuration(start = this._start, end = this._end) {
@@ -89,5 +91,15 @@ export default class TripPoint extends AbstractView {
         </button>
         </div>
       </li>`;
+  }
+
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
+  }
+
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
   }
 }

@@ -1,4 +1,4 @@
-import {randomInt, getRandomArrayElement} from '../utils.js';
+import {randomInt, getRandomArrayElement} from '../utils/common.js';
 
 const DESTINATIONS_NAMES = [
   `Коровино`,

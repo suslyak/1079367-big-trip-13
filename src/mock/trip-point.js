@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import {generateDestinations} from './destinations.js';
 
-import {randomInt, getRandomArrayElement} from '../utils.js';
+import {randomInt, getRandomArrayElement} from '../utils/common.js';
 
 export const OFFERS = {
   'taxi': [

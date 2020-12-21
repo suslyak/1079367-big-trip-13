@@ -11,8 +11,8 @@ import {generatePoint} from './mock/trip-point.js';
 import {generateFilter} from './mock/filter.js';
 import {generateSorting} from './mock/sortings.js';
 
-import {sortByStartDates} from './utils.js';
-import {renderElement} from './utils.js';
+import {sortByStartDates} from './utils/point.js';
+import {render, replace} from './utils/render.js';
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -34,34 +34,32 @@ const tripTimeGap = {
 
 const tripCost = tripPoints.reduce((total, point) => total + point.cost, 0);
 
-renderElement(tripMainElement, new TripInfo(tripDestinationsGraph, tripTimeGap).getElement(), `afterbegin`);
+render(tripMainElement, new TripInfo(tripDestinationsGraph, tripTimeGap), `afterbegin`);
 
 const tripInfoElement = pageHeaderElement.querySelector(`.trip-info`);
 
-renderElement(tripInfoElement, new TripCost(tripCost).getElement(), `beforeend`);
+render(tripInfoElement, new TripCost(tripCost), `beforeend`);
 
 const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
 
-renderElement(tripControlsElement, new Menu(getNavigationLinks()).getElement(), menuReferenceElement);
-renderElement(tripControlsElement, new Filter(generateFilter(tripPoints)).getElement(), `beforeend`);
-renderElement(eventsElement, new Sorting(generateSorting(tripPoints)).getElement(), `beforeend`);
-renderElement(eventsElement, new Events().getElement(), `beforeend`);
+render(tripControlsElement, new Menu(getNavigationLinks()), menuReferenceElement);
+render(tripControlsElement, new Filter(generateFilter(tripPoints)), `beforeend`);
+render(eventsElement, new Sorting(generateSorting(tripPoints)), `beforeend`);
+render(eventsElement, new Events(), `beforeend`);
 
 const tripEventsListElement = eventsElement.querySelector(`.trip-events__list`);
 
 for (const tripPoint of tripPoints) {
-  const EditPointFormElement = new EditPointForm(tripPoint).getElement();
-  const TripPointElement = new TripPoint(tripPoint).getElement();
+  const EditPointFormElement = new EditPointForm(tripPoint);
+  const TripPointElement = new TripPoint(tripPoint);
 
-  TripPointElement.querySelector(`.event__rollup-btn`)
-  .addEventListener(`click`, () => {
-    tripEventsListElement.replaceChild(EditPointFormElement, TripPointElement);
+  TripPointElement.setEditClickHandler(() => {
+    replace(EditPointFormElement, TripPointElement);
   });
 
-  EditPointFormElement.querySelector(`.event__rollup-btn`)
-  .addEventListener(`click`, () => {
-    tripEventsListElement.replaceChild(TripPointElement, EditPointFormElement);
+  EditPointFormElement.setEditClickHandler(() => {
+    replace(TripPointElement, EditPointFormElement);
   });
 
-  renderElement(tripEventsListElement, TripPointElement, `beforeend`);
+  render(tripEventsListElement, TripPointElement, `beforeend`);
 }
