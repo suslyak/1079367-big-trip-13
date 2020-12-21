@@ -50,16 +50,16 @@ render(eventsElement, new Events(), `beforeend`);
 const tripEventsListElement = eventsElement.querySelector(`.trip-events__list`);
 
 for (const tripPoint of tripPoints) {
-  const EditPointFormElement = new EditPointForm(tripPoint);
-  const TripPointElement = new TripPoint(tripPoint);
+  const EditPointFormComponent = new EditPointForm(tripPoint);
+  const TripPointComponent = new TripPoint(tripPoint);
 
-  TripPointElement.setEditClickHandler(() => {
-    replace(EditPointFormElement, TripPointElement);
+  TripPointComponent.setEditClickHandler(() => {
+    replace(EditPointFormComponent, TripPointComponent);
   });
 
-  EditPointFormElement.setEditClickHandler(() => {
-    replace(TripPointElement, EditPointFormElement);
+  EditPointFormComponent.setEditClickHandler(() => {
+    replace(TripPointComponent, EditPointFormComponent);
   });
 
-  render(tripEventsListElement, TripPointElement, `beforeend`);
+  render(tripEventsListElement, TripPointComponent, `beforeend`);
 }
