@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
+import AbstractView from "./abstract.js";
 
-import {createElement} from '../utils.js';
 
-export default class TripInfo {
+export default class TripInfo extends AbstractView {
   constructor(destinations = [`...`, `...`], time = {start: dayjs(), end: dayjs()}) {
-    this._element = null;
+    super();
     this._destinations = destinations.join(` &mdash; `);
     this._time = time;
   }
@@ -26,17 +26,5 @@ export default class TripInfo {
           <p class="trip-info__dates">${this.getTripDates()}</p>
         </div>
       </section>`;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

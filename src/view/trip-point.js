@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractView from "./abstract.js";
 
 const getOffers = (offers) => {
   return offers.reduce((offersListElements, offer) => (
@@ -11,7 +11,7 @@ const getOffers = (offers) => {
 };
 
 const getOffersTemplate = (offers) => {
-  if (offers.length > 0) {
+  if (offers.length) {
     return `
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
@@ -22,8 +22,10 @@ const getOffersTemplate = (offers) => {
   return ``;
 };
 
-export default class TripPoint {
+export default class TripPoint extends AbstractView {
   constructor(point) {
+    super();
+
     const {
       pointType,
       offers,
@@ -34,7 +36,6 @@ export default class TripPoint {
       favorite,
     } = point;
 
-    this._element = null;
     this._type = pointType;
     this._offers = offers;
     this._destination = destination;
@@ -88,17 +89,5 @@ export default class TripPoint {
         </button>
         </div>
       </li>`;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
