@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractView from './abstract.js';
 
 const generateLinks = (links) => {
   return links.map((link) => `
@@ -6,9 +6,9 @@ const generateLinks = (links) => {
   ).join(``);
 };
 
-export default class Menu {
+export default class Menu extends AbstractView {
   constructor(links = []) {
-    this._element = null;
+    super();
     this._links = links;
   }
 
@@ -17,17 +17,5 @@ export default class Menu {
       <nav class="trip-controls__trip-tabs  trip-tabs">
         ${generateLinks(this._links)}
       </nav>`;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

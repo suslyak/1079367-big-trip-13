@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractView from './abstract.js';
 
 const getOffers = (offers) => {
   return offers.reduce((offersListElements, offer) => (
@@ -11,7 +11,7 @@ const getOffers = (offers) => {
 };
 
 const getOffersTemplate = (offers) => {
-  if (offers.length > 0) {
+  if (offers.length) {
     return `
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
@@ -22,8 +22,10 @@ const getOffersTemplate = (offers) => {
   return ``;
 };
 
-export default class TripPoint {
+export default class TripPoint extends AbstractView {
   constructor(point) {
+    super();
+
     const {
       pointType,
       offers,
@@ -34,7 +36,6 @@ export default class TripPoint {
       favorite,
     } = point;
 
-    this._element = null;
     this._type = pointType;
     this._offers = offers;
     this._destination = destination;
@@ -42,6 +43,8 @@ export default class TripPoint {
     this._end = end;
     this._cost = cost;
     this._favorite = favorite;
+
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   getDuration(start = this._start, end = this._end) {
@@ -90,15 +93,13 @@ export default class TripPoint {
       </li>`;
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
   }
 }

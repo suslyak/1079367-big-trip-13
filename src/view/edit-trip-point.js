@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
-
-import {randomInt, createElement} from '../utils.js';
+import {randomInt} from '../utils/common.js';
+import AbstractView from './abstract.js';
 
 import {POINT_TYPES} from '../mock/trip-point.js';
 import {OFFERS} from '../mock/trip-point.js';
@@ -13,7 +13,7 @@ const getDestinationPictures = (pictures) => {
 };
 
 const getPicturesTemplate = (destination) => {
-  if (destination.description.pictures.length > 0) {
+  if (destination.description.pictures.length) {
     return `
       <div class="event__photos-container">
         <div class="event__photos-tape">
@@ -26,7 +26,7 @@ const getPicturesTemplate = (destination) => {
 };
 
 const getDestinationInfoTemplate = (destination) => {
-  if (Object.keys(destination).length > 0) {
+  if (Object.keys(destination).length) {
     return `
       <section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -38,8 +38,10 @@ const getDestinationInfoTemplate = (destination) => {
   return ``;
 };
 
-export default class EditPointForm {
+export default class EditPointForm extends AbstractView {
   constructor(point = {}, destinationsAvailable = []) {
+    super();
+
     const {
       pointType = POINT_TYPES[5],
       offers = OFFERS[pointType],
@@ -49,7 +51,6 @@ export default class EditPointForm {
       cost = ``
     } = point;
 
-    this._element = null;
     this._type = pointType;
     this._offers = offers;
     this._destination = destination;
@@ -62,6 +63,8 @@ export default class EditPointForm {
     // В принципе, не обязательно, т.к. в ТЗ может быть открыта одновременно только одна форма,
     // но вдруг это изменится в будущем.
     this._idForInputs = nanoid(8);
+
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   drawRollUpButton() {
@@ -76,7 +79,7 @@ export default class EditPointForm {
   }
 
   getDestinationsOptions() {
-    if (this._possibleDestinations.length > 0) {
+    if (this._possibleDestinations.length) {
       return this._possibleDestinations.reduce((destinationsOptionElements, option) => (
         destinationsOptionElements + `<option value="${option}"></option>`
       ), ``);
@@ -85,12 +88,12 @@ export default class EditPointForm {
     return ``;
   }
 
-  drowAvailableTypes() {
+  getAvailableTypesTemplate() {
     return POINT_TYPES.reduce((typesInputElements, type) => (
       typesInputElements + `
         <div class="event__type-item">
           <input id="event-type-${type}-${this._idForInputs}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-          <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${this._idForInputs}">${type.slice(0, 1).toUpperCase() + type.slice(1)}</label>
+          <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${this._idForInputs}">${type}</label>
         </div>`
     ), ``);
   }
@@ -98,7 +101,7 @@ export default class EditPointForm {
   getOffers() {
     let checked = Boolean;
 
-    if (this._offers.length > 0) {
+    if (this._offers.length) {
       return this._offers.map((offer) => {
         let offerIndex = nanoid(8);
         checked = this._isEmpty ? !this._isEmpty : Boolean(randomInt(0, 1));
@@ -119,7 +122,7 @@ export default class EditPointForm {
   }
 
   getOffersTemplate() {
-    if (this._offers.length > 0) {
+    if (this._offers.length) {
       return `
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -147,7 +150,7 @@ export default class EditPointForm {
               <div class="event__type-list">
                 <fieldset class="event__type-group">
                   <legend class="visually-hidden">Event type</legend>
-                  ${this.drowAvailableTypes()}
+                  ${this.getAvailableTypesTemplate()}
                 </fieldset>
               </div>
             </div>
@@ -190,15 +193,13 @@ export default class EditPointForm {
       </li>`;
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
   }
 }
