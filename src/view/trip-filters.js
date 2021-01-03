@@ -12,7 +12,7 @@ const getFilterItems = (filter, isChecked) => {
 };
 
 export default class Filter extends AbstractView {
-  constructor(filters) {
+  constructor(filters = []) {
     super();
     this._filterItems = filters.map((filter, index) => getFilterItems(filter, index === 0)).join(``);
   }

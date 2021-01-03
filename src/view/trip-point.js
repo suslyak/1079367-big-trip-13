@@ -1,4 +1,5 @@
 import AbstractView from './abstract.js';
+import dayjs from 'dayjs';
 
 const getOffers = (offers) => {
   return offers.reduce((offersListElements, offer) => (
@@ -23,17 +24,17 @@ const getOffersTemplate = (offers) => {
 };
 
 export default class TripPoint extends AbstractView {
-  constructor(point) {
+  constructor(point = {}) {
     super();
 
     const {
-      pointType,
-      offers,
-      destination,
-      start,
-      end,
-      cost,
-      favorite,
+      pointType = `Flight`,
+      offers = [],
+      destination = {},
+      start = dayjs(),
+      end = dayjs(),
+      cost = ``,
+      favorite = false,
     } = point;
 
     this._type = pointType;
