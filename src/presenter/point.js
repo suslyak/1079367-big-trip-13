@@ -2,17 +2,26 @@ import EditPointForm from '../view/edit-trip-point.js';
 import TripPoint from '../view/trip-point.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
 
+const Mode = {
+  DEFAULT: `DEFAULT`,
+  EDITING: `EDITING`
+};
 
 export default class Point {
-  constructor(tripContainer) {
+  constructor(tripContainer, changeData, switchMode) {
     this._tripContainer = tripContainer;
     this._possibleDestinations = [];
+    this._changeData = changeData;
+    this._switchMode = switchMode;
     this._pointComponent = null;
     this._editPointComponent = null;
+    this._mode = Mode.DEFAULT;
+
 
     this._handleEditClick = this._handleEditClick.bind(this);
     this._handleCloseEditClick = this._handleCloseEditClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
+    this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
   }
 
   init(point, possibleDestiantions = []) {
@@ -26,6 +35,7 @@ export default class Point {
     this._editPointComponent = new EditPointForm(this._point, this._possibleDestinations);
 
     this._pointComponent.setEditClickHandler(this._handleEditClick);
+    this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setEditClickHandler(this._handleCloseEditClick);
 
     if (prevPointComponent === null || prevEditPointComponent === null) {
@@ -33,11 +43,11 @@ export default class Point {
       return;
     }
 
-    if (this._tripContainer.contains(prevPointComponent.getElement())) {
+    if (this._mode === Mode.DEFAULT) {
       replace(this._pointComponent, prevPointComponent);
     }
 
-    if (this._tripContainer.contains(prevEditPointComponent.getElement())) {
+    if (this._mode === Mode.EDITING) {
       replace(this._editPointComponent, prevEditPointComponent);
     }
 
@@ -53,11 +63,23 @@ export default class Point {
   _replacePointToForm() {
     replace(this._editPointComponent, this._pointComponent);
     document.addEventListener(`keydown`, this._escKeyDownHandler);
+
+    this._switchMode();
+
+    this._mode = Mode.EDITING;
   }
 
   _replaceFormToPoint() {
     replace(this._pointComponent, this._editPointComponent);
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
+
+    this._mode = Mode.DEFAULT;
+  }
+
+  resetViewToDefault() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._replaceFormToPoint();
+    }
   }
 
   _escKeyDownHandler(evt) {
@@ -73,5 +95,17 @@ export default class Point {
 
   _handleCloseEditClick() {
     this._replaceFormToPoint();
+  }
+
+  _handleFavoriteClick() {
+    this._changeData(
+        Object.assign(
+            {},
+            this._point,
+            {
+              favorite: !this._point.favorite
+            }
+        )
+    );
   }
 }

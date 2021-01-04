@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
-import {generateDestinations} from './destinations.js';
+import {nanoid} from 'nanoid';
 
+import {generateDestinations} from './destinations.js';
 import {randomInt, getRandomArrayElement} from '../utils/common.js';
 
 export const OFFERS = {
@@ -69,6 +70,7 @@ export const generatePoint = () => {
   const favorite = Boolean(randomInt(0, 1));
 
   return {
+    id: nanoid(8),
     pointType,
     offers,
     destination,
