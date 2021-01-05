@@ -1,4 +1,5 @@
 import AbstractView from './abstract.js';
+import dayjs from 'dayjs';
 
 const getOffers = (offers) => {
   return offers.reduce((offersListElements, offer) => (
@@ -23,17 +24,17 @@ const getOffersTemplate = (offers) => {
 };
 
 export default class TripPoint extends AbstractView {
-  constructor(point) {
+  constructor(point = {}) {
     super();
 
     const {
-      pointType,
-      offers,
-      destination,
-      start,
-      end,
-      cost,
-      favorite,
+      pointType = `Flight`,
+      offers = [],
+      destination = {},
+      start = dayjs(),
+      end = dayjs(),
+      cost = ``,
+      favorite = false,
     } = point;
 
     this._type = pointType;
@@ -45,6 +46,7 @@ export default class TripPoint extends AbstractView {
     this._favorite = favorite;
 
     this._editClickHandler = this._editClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getDuration(start = this._start, end = this._end) {
@@ -98,8 +100,18 @@ export default class TripPoint extends AbstractView {
     this._callback.editClick();
   }
 
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
   setEditClickHandler(callback) {
     this._callback.editClick = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, this._favoriteClickHandler);
   }
 }
