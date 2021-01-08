@@ -1,4 +1,5 @@
-import Abstract from "./abstract";
+import Abstract from './abstract';
+import {deepEqual} from '../utils/common.js';
 
 export default class Smart extends Abstract {
   constructor() {
@@ -11,11 +12,17 @@ export default class Smart extends Abstract {
       return;
     }
 
-    this._data = Object.assign(
+    const newData = Object.assign(
         {},
         this._data,
         update
     );
+
+    if (deepEqual(this._data, newData)) {
+      return;
+    } else {
+      this._data = newData;
+    }
 
     if (justDataUpdating) {
       return;

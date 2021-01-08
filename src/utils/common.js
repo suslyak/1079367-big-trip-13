@@ -20,3 +20,7 @@ export const updateItem = (items, update) => {
     ...items.slice(index + 1)
   ];
 };
+
+export const deepEqual = (firstObject, secondObject) => {
+  return JSON.stringify(firstObject) === JSON.stringify(secondObject);
+};

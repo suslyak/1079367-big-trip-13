@@ -43,16 +43,12 @@ export default class EditPointForm extends SmartView {
 
     const {
       pointType = POINT_TYPES[5],
-      offers = [],
-      destination = {},
       start = dayjs(),
       end = dayjs(),
       cost = ``
     } = point;
 
     this._type = pointType;
-    this._offers = offers;
-    this._destination = destination;
     this._start = start;
     this._end = end;
     this._cost = cost;
@@ -246,7 +242,6 @@ export default class EditPointForm extends SmartView {
     this.updateData({
       destination: destinationFromValue.length ? destinationFromValue[0] : {}
     });
-
   }
 
   _setInnerHandlers() {
