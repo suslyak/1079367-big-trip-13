@@ -72,6 +72,12 @@ export default class EditPointForm extends SmartView {
     this._setDestinationChangeHandlers();
   }
 
+  reset(point) {
+    this.updateData(
+        EditPointForm.parsePointToData(point)
+    );
+  }
+
   drawRollUpButton() {
     if (!this._isEmpty) {
       return `
@@ -272,7 +278,7 @@ export default class EditPointForm extends SmartView {
   static parseDataToPoint(data) {
     data = Object.assign({}, data);
 
-    data.offers = (data.PointType in OFFERS) ? OFFERS[data.PointType].filter((offer) => data.offers.indexOf(offer.id) >= 0) : [];
+    data.offers = [];
 
     delete data.availableOffers;
 
