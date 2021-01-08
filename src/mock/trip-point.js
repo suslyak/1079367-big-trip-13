@@ -66,7 +66,7 @@ export const generateDates = () => {
 export const generatePoint = () => {
   const {start, end} = generateDates();
   const pointType = getRandomArrayElement(POINT_TYPES);
-  const offers = (pointType in OFFERS) ? OFFERS[pointType].filter(() => Boolean(randomInt(0, 1))) : [];
+  const selectedOffers = (pointType in OFFERS) ? OFFERS[pointType].filter(() => Boolean(randomInt(0, 1))) : [];
   const destination = getRandomArrayElement(DESTINATIONS);
   const cost = randomInt(50, 250);
   const favorite = Boolean(randomInt(0, 1));
@@ -74,7 +74,7 @@ export const generatePoint = () => {
   return {
     id: nanoid(8),
     pointType,
-    offers,
+    selectedOffers,
     destination,
     start,
     end,

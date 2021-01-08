@@ -2,8 +2,8 @@ import AbstractView from './abstract.js';
 
 import dayjs from 'dayjs';
 
-const getOffers = (offers) => {
-  return offers.reduce((offersListElements, offer) => (
+const getOffers = (selectedOffers) => {
+  return selectedOffers.reduce((offersListElements, offer) => (
     offersListElements + `<li class="event__offer">
       <span class="event__offer-title">${offer.title}</span>
       &plus;&euro;&nbsp;
@@ -12,12 +12,12 @@ const getOffers = (offers) => {
   ), ``);
 };
 
-const getOffersTemplate = (offers) => {
-  if (offers.length) {
+const getOffersTemplate = (selectedOffers) => {
+  if (selectedOffers.length) {
     return `
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        ${getOffers(offers)}
+        ${getOffers(selectedOffers)}
       </ul>`;
   }
 
@@ -30,7 +30,7 @@ export default class TripPoint extends AbstractView {
 
     const {
       pointType = `Flight`,
-      offers = [],
+      selectedOffers = [],
       destination = {},
       start = dayjs(),
       end = dayjs(),
@@ -39,7 +39,7 @@ export default class TripPoint extends AbstractView {
     } = point;
 
     this._type = pointType;
-    this._offers = offers;
+    this._selectedOffers = selectedOffers;
     this._destination = destination;
     this._start = start;
     this._end = end;
@@ -82,7 +82,7 @@ export default class TripPoint extends AbstractView {
         <p class="event__price">
             &euro;&nbsp;<span class="event__price-value">${this._cost}</span>
         </p>
-          ${getOffersTemplate(this._offers)}
+          ${getOffersTemplate(this._selectedOffers)}
         <button class="event__favorite-btn ${this._favorite ? `event__favorite-btn--active` : `` }" type="button">
             <span class="visually-hidden">Add to favorite</span>
             <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
