@@ -1,4 +1,5 @@
 import AbstractView from './abstract.js';
+
 import dayjs from 'dayjs';
 
 const getOffers = (offers) => {
@@ -61,7 +62,7 @@ export default class TripPoint extends AbstractView {
     .filter((term) => term).join(` `);
   }
 
-  getTemplate() {
+  _createPointTemplate() {
     return `
       <li class="trip-events__item">
         <div class="event">
@@ -93,6 +94,10 @@ export default class TripPoint extends AbstractView {
         </button>
         </div>
       </li>`;
+  }
+
+  getTemplate() {
+    return this._createPointTemplate();
   }
 
   _editClickHandler(evt) {

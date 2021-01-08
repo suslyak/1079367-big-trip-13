@@ -1,10 +1,9 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
-import {randomInt} from '../utils/common.js';
-import AbstractView from './abstract.js';
+import SmartView from './smart.js';
 
 import {POINT_TYPES} from '../mock/trip-point.js';
-import {OFFERS} from '../mock/trip-point.js';
+import {OFFERS, DESTINATIONS} from '../mock/trip-point.js';
 
 const getDestinationPictures = (pictures) => {
   return pictures.reduce((destinationsPictureElements, picture) => (
@@ -38,13 +37,13 @@ const getDestinationInfoTemplate = (destination) => {
   return ``;
 };
 
-export default class EditPointForm extends AbstractView {
+export default class EditPointForm extends SmartView {
   constructor(point = {}, destinationsAvailable = []) {
     super();
 
     const {
       pointType = POINT_TYPES[5],
-      offers = OFFERS[pointType],
+      offers = [],
       destination = {},
       start = dayjs(),
       end = dayjs(),
@@ -59,12 +58,18 @@ export default class EditPointForm extends AbstractView {
     this._cost = cost;
     this._possibleDestinations = destinationsAvailable;
     this._isEmpty = Object.keys(point).length === 0;
+    this._data = EditPointForm.parsePointToData(point);
 
     // В принципе, не обязательно, т.к. в ТЗ может быть открыта одновременно только одна форма,
     // но вдруг это изменится в будущем.
     this._idForInputs = nanoid(8);
 
     this._editClickHandler = this._editClickHandler.bind(this);
+    this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
+    this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
+
+    this._setPointTypeChangeHandlers();
+    this._setDestinationChangeHandlers();
   }
 
   drawRollUpButton() {
@@ -98,13 +103,13 @@ export default class EditPointForm extends AbstractView {
     ), ``);
   }
 
-  getOffers() {
+  getOffers(offers, availableOffers) {
     let checked = Boolean;
 
-    if (this._offers.length) {
-      return this._offers.map((offer) => {
-        let offerIndex = nanoid(8);
-        checked = this._isEmpty ? !this._isEmpty : Boolean(randomInt(0, 1));
+    if (availableOffers.length) {
+      return availableOffers.map((offer) => {
+        const offerIndex = nanoid(8);
+        checked = (offers.indexOf(offer.id) >= 0) ? true : false;
 
         return `
           <div class="event__offer-selector">
@@ -121,13 +126,13 @@ export default class EditPointForm extends AbstractView {
     return ``;
   }
 
-  getOffersTemplate() {
-    if (this._offers.length) {
+  getOffersTemplate(offers, availableOffers) {
+    if (availableOffers.length) {
       return `
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
           <div class="event__available-offers">
-            ${this.getOffers()}
+            ${this.getOffers(offers, availableOffers)}
           </div>
         </section>`;
     }
@@ -135,7 +140,9 @@ export default class EditPointForm extends AbstractView {
     return ``;
   }
 
-  getTemplate() {
+  _createEditPointTemplate(data) {
+    const {pointType: type, destination, offers, availableOffers} = data;
+
     return `
       <li class="trip-events__item">
         <form class="event event--edit" action="#" method="post">
@@ -143,7 +150,7 @@ export default class EditPointForm extends AbstractView {
             <div class="event__type-wrapper">
               <label class="event__type  event__type-btn" for="event-type-toggle-${this._idForInputs}">
                 <span class="visually-hidden">Choose event type</span>
-                <img class="event__type-icon" width="17" height="17" src="img/icons/${this._type}.png" alt="Event type icon">
+                <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
               </label>
               <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${this._idForInputs}" type="checkbox">
 
@@ -157,9 +164,9 @@ export default class EditPointForm extends AbstractView {
 
             <div class="event__field-group  event__field-group--destination">
               <label class="event__label  event__type-output" for="event-destination-${this._idForInputs}">
-                ${this._type}
+                ${type}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-${this._idForInputs}" type="text" name="event-destination" value="${this._destination.name ? this._destination.name : ``}" list="destination-list-${this._idForInputs}">
+              <input class="event__input  event__input--destination" id="event-destination-${this._idForInputs}" type="text" name="event-destination" value="${destination.name ? destination.name : ``}" list="destination-list-${this._idForInputs}">
               <datalist id="destination-list-${this._idForInputs}">
                 ${this.getDestinationsOptions()}
               </datalist>
@@ -186,20 +193,89 @@ export default class EditPointForm extends AbstractView {
             ${this.drawRollUpButton()}
           </header>
           <section class="event__details">
-            ${this.getOffersTemplate()}
-            ${getDestinationInfoTemplate(this._destination)}
+            ${this.getOffersTemplate(offers, availableOffers)}
+            ${getDestinationInfoTemplate(destination)}
           </section>
         </form>
       </li>`;
   }
+
+  getTemplate() {
+    return this._createEditPointTemplate(this._data);
+  }
+
+  _setPointTypeChangeHandlers() {
+    const pointTypeRadioButtons = this.getElement().querySelectorAll(`.event__type-input`);
+
+    pointTypeRadioButtons.forEach((button) => {
+      button.addEventListener(`click`, this._pointTypeChangeHandler);
+    });
+  }
+
+  _setDestinationChangeHandlers() {
+    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
+
+    destinationInput.addEventListener(`change`, this._destinationChangeHandler);
+  }
+
 
   _editClickHandler(evt) {
     evt.preventDefault();
     this._callback.editClick();
   }
 
+  _pointTypeChangeHandler(evt) {
+    evt.preventDefault();
+
+    this.updateData({
+      pointType: evt.currentTarget.value,
+      offers: [],
+      availableOffers: (evt.currentTarget.value in OFFERS) ? OFFERS[evt.currentTarget.value] : []
+    });
+  }
+
+  _destinationChangeHandler(evt) {
+    evt.preventDefault();
+    const destinationFromValue = DESTINATIONS.filter((destination) => destination.name === evt.currentTarget.value);
+    this.updateData({
+      destination: destinationFromValue.length ? destinationFromValue[0] : {}
+    });
+
+  }
+
+  _setInnerHandlers() {
+    this._setPointTypeChangeHandlers();
+    this._setDestinationChangeHandlers();
+  }
+
   setEditClickHandler(callback) {
     this._callback.editClick = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setEditClickHandler(this._callback.editClick);
+  }
+
+  static parsePointToData(point) {
+    return Object.assign(
+        {},
+        point,
+        {
+          offers: point.offers.map((offer) => offer.id),
+          availableOffers: OFFERS[point.pointType] ? OFFERS[point.pointType] : []
+        }
+    );
+  }
+
+  static parseDataToPoint(data) {
+    data = Object.assign({}, data);
+
+    data.offers = (data.PointType in OFFERS) ? OFFERS[data.PointType].filter((offer) => data.offers.indexOf(offer.id) >= 0) : [];
+
+    delete data.availableOffers;
+
+    return data;
   }
 }
