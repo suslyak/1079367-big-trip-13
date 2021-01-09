@@ -239,7 +239,7 @@ export default class EditPointForm extends SmartView {
     evt.preventDefault();
     const destinationFromValue = DESTINATIONS.find((destination) => destination.name === evt.currentTarget.value);
     this.updateData({
-      destination: destinationFromValue.length ? destinationFromValue[0] : {}
+      destination: destinationFromValue ? destinationFromValue : {}
     });
   }
 
