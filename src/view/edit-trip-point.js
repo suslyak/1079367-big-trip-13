@@ -227,10 +227,11 @@ export default class EditPointForm extends SmartView {
   _pointTypeChangeHandler(evt) {
     if (evt.target && evt.target.matches(`input[type='radio']`)) {
       evt.target.checked = true;
+
       this.updateData({
         pointType: evt.target.value,
         selectedOffers: [],
-        availableOffers: (evt.currentTarget.value in OFFERS) ? OFFERS[evt.currentTarget.value] : []
+        availableOffers: (evt.target.value in OFFERS) ? OFFERS[evt.target.value] : []
       });
     }
   }
