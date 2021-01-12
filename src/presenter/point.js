@@ -22,6 +22,7 @@ export default class Point {
     this._handleCloseEditClick = this._handleCloseEditClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
   init(point, possibleDestiantions = []) {
@@ -37,6 +38,7 @@ export default class Point {
     this._pointComponent.setEditClickHandler(this._handleEditClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setEditClickHandler(this._handleCloseEditClick);
+    this._editPointComponent.setformDeleteClickHandler(this._handleDeleteClick);
 
     if (prevPointComponent === null || prevEditPointComponent === null) {
       render(this._tripContainer, this._pointComponent, RenderPosition.BEFOREEND);
@@ -110,6 +112,14 @@ export default class Point {
               favorite: !this._point.favorite
             }
         )
+    );
+  }
+
+  _handleDeleteClick(point) {
+    this._changeData(
+        UserAction.DELETE_POINT,
+        UpdateType.MINOR,
+        point
     );
   }
 }

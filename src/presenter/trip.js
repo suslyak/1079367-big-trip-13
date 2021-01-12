@@ -122,6 +122,8 @@ export default class Trip {
         break;
 
       case UpdateType.MINOR:
+        this._clearTrip();
+        this._renderTripPoints();
         break;
 
       case UpdateType.MAJOR:
