@@ -1,8 +1,9 @@
 import InfoPresenter from './presenter/info.js';
 import TripPresenter from './presenter/trip.js';
+import PointsModel from "./model/points.js";
+import FilterModel from "./model/filter.js";
 import {getNavigationLinks} from './mock/navigation.js';
 import {generatePoint} from './mock/trip-point.js';
-import {generateFilter} from './mock/filter.js';
 import {generateSorting} from './mock/sortings.js';
 
 import {sortByStartDates} from './utils/point.js';
@@ -15,18 +16,20 @@ const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
 const eventsElement = pageMainElement.querySelector(`.trip-events`);
 
 const tripPoints = new Array(20).fill().map(generatePoint);
-const destinations = Array.from(new Set(tripPoints.map((point) => point.destination.name)));
-
-destinations.sort();
 tripPoints.sort(sortByStartDates);
+
+const pointsModel = new PointsModel();
+pointsModel.setPoints(tripPoints);
+
+const filterModel = new FilterModel();
 
 const headerRenderPlaces = {
   menu: {container: tripControlsElement, referenceElement: menuReferenceElement},
   filter: tripControlsElement
 };
 
-const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces);
-const tripPresenter = new TripPresenter(eventsElement);
+const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, pointsModel, filterModel);
+const tripPresenter = new TripPresenter(eventsElement, pointsModel, filterModel);
 
-infoPresenter.init(tripPoints, getNavigationLinks(), generateFilter(tripPoints));
-tripPresenter.init(tripPoints, generateSorting(tripPoints));
+infoPresenter.init(getNavigationLinks());
+tripPresenter.init(generateSorting(tripPoints));

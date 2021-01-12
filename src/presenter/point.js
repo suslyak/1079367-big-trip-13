@@ -1,6 +1,7 @@
 import EditPointForm from '../view/edit-trip-point.js';
 import TripPoint from '../view/trip-point.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
+import {UserAction, UpdateType} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -16,7 +17,6 @@ export default class Point {
     this._pointComponent = null;
     this._editPointComponent = null;
     this._mode = Mode.DEFAULT;
-
 
     this._handleEditClick = this._handleEditClick.bind(this);
     this._handleCloseEditClick = this._handleCloseEditClick.bind(this);
@@ -101,6 +101,8 @@ export default class Point {
 
   _handleFavoriteClick() {
     this._changeData(
+        UserAction.UPDATE_POINT,
+        UpdateType.PATCH,
         Object.assign(
             {},
             this._point,
