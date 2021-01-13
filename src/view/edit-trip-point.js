@@ -63,7 +63,8 @@ export default class EditPointForm extends SmartView {
     this._editClickHandler = this._editClickHandler.bind(this);
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
-    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
+    this._deleteClickHandler = this._deleteClickHandler.bind(this);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -143,7 +144,7 @@ export default class EditPointForm extends SmartView {
   }
 
   _createEditPointTemplate(data) {
-    const {pointType: type, destination, selectedOffers, availableOffers} = data;
+    const {pointType: type = `flight`, destination = {}, selectedOffers, availableOffers} = data;
 
     return `
       <li class="trip-events__item">
@@ -218,9 +219,14 @@ export default class EditPointForm extends SmartView {
     destinationInput.addEventListener(`change`, this._destinationChangeHandler);
   }
 
-  setformDeleteClickHandler(callback) {
+  setDeleteClickHandler(callback) {
     this._callback.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteClickHandler);
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.submitClick = callback;
+    this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, this._formSubmitHandler);
   }
 
   _editClickHandler(evt) {
@@ -248,9 +254,14 @@ export default class EditPointForm extends SmartView {
     });
   }
 
-  _formDeleteClickHandler(evt) {
+  _deleteClickHandler(evt) {
     evt.preventDefault();
     this._callback.deleteClick(EditPointForm.parseDataToPoint(this._data));
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.submitClick(EditPointForm.parseDataToPoint(this._data));
   }
 
   _setInnerHandlers() {
@@ -259,13 +270,19 @@ export default class EditPointForm extends SmartView {
   }
 
   setEditClickHandler(callback) {
+    const editButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
     this._callback.editClick = callback;
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
+
+    if (editButtonElement) {
+      editButtonElement.addEventListener(`click`, this._editClickHandler);
+    }
   }
 
   restoreHandlers() {
     this._setInnerHandlers();
     this.setEditClickHandler(this._callback.editClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+    this.setFormSubmitHandler(this._callback.submitClick);
   }
 
   static parsePointToData(point) {

@@ -33,3 +33,8 @@ const tripPresenter = new TripPresenter(eventsElement, pointsModel, filterModel)
 
 infoPresenter.init(getNavigationLinks());
 tripPresenter.init(generateSorting(tripPoints));
+
+document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (evt) => {
+  evt.preventDefault();
+  tripPresenter.createPoint();
+});
