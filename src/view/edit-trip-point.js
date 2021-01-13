@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import SmartView from './smart.js';
+import {ErrorMessages} from '../const.js';
 
 import {POINT_TYPES} from '../mock/trip-point.js';
 import {OFFERS, DESTINATIONS} from '../mock/trip-point.js';
@@ -63,8 +64,10 @@ export default class EditPointForm extends SmartView {
     this._editClickHandler = this._editClickHandler.bind(this);
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
+    this._priceChangeHandler = this._priceChangeHandler.bind(this);
     this._deleteClickHandler = this._deleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._priceInputHandler = this._priceInputHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -219,6 +222,18 @@ export default class EditPointForm extends SmartView {
     destinationInput.addEventListener(`change`, this._destinationChangeHandler);
   }
 
+  _setPriceChangeHandlers() {
+    const priceInput = this.getElement().querySelector(`.event__input--price`);
+
+    priceInput.addEventListener(`change`, this._priceChangeHandler);
+  }
+
+  _setPriceInputHandlers() {
+    const priceInput = this.getElement().querySelector(`.event__input--price`);
+
+    priceInput.addEventListener(`input`, this._priceInputHandler);
+  }
+
   setDeleteClickHandler(callback) {
     this._callback.deleteClick = callback;
     this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteClickHandler);
@@ -249,9 +264,30 @@ export default class EditPointForm extends SmartView {
   _destinationChangeHandler(evt) {
     evt.preventDefault();
     const destinationFromValue = DESTINATIONS.find((destination) => destination.name === evt.currentTarget.value);
+
+    if (this._possibleDestinations.some((destination) => destination === evt.currentTarget.value)) {
+      evt.currentTarget.setCustomValidity(``);
+
+      this.updateData({
+        destination: destinationFromValue ? destinationFromValue : {}
+      });
+    } else {
+      evt.currentTarget.setCustomValidity(ErrorMessages.WRONG_DESTINATION);
+      evt.currentTarget.reportValidity();
+    }
+  }
+
+  _priceChangeHandler(evt) {
+    evt.preventDefault();
+    evt.target.value = evt.target.value.replace(/\D/g, ``); // на случай смены value кулхацкером не через ввод в инпут
     this.updateData({
-      destination: destinationFromValue ? destinationFromValue : {}
-    });
+      cost: evt.target.value
+    }, true);
+  }
+
+  _priceInputHandler(evt) {
+    evt.preventDefault();
+    evt.target.value = evt.target.value.replace(/\D/g, ``);
   }
 
   _deleteClickHandler(evt) {
@@ -262,19 +298,23 @@ export default class EditPointForm extends SmartView {
   _formSubmitHandler(evt) {
     evt.preventDefault();
     this._callback.submitClick(EditPointForm.parseDataToPoint(this._data));
+
+    return;
   }
 
   _setInnerHandlers() {
     this._setPointTypeChangeHandlers();
     this._setDestinationChangeHandlers();
+    this._setPriceChangeHandlers();
+    this._setPriceInputHandlers();
   }
 
   setEditClickHandler(callback) {
-    const editButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
+    const editButton = this.getElement().querySelector(`.event__rollup-btn`);
     this._callback.editClick = callback;
 
-    if (editButtonElement) {
-      editButtonElement.addEventListener(`click`, this._editClickHandler);
+    if (editButton) {
+      editButton.addEventListener(`click`, this._editClickHandler);
     }
   }
 
@@ -301,5 +341,23 @@ export default class EditPointForm extends SmartView {
     delete data.availableOffers;
 
     return data;
+  }
+
+  _validateForm() {
+
+  }
+
+  _setFormValidations() {
+    const form = this.getElement().querySelector(`event--edit`);
+    const destinationInput = form.querySelector(`[name='event-destination']`);
+    // const priceInput = form.querySelector(`[name='event-price']`);
+
+    if (this._possibleDestinations.some((destination) => destination === destinationInput.value)) {
+      destinationInput.setCustomValidity(``);
+    } else {
+      destinationInput.setCustomValidity(ErrorMessages.WRONG_DESTINATION);
+    }
+
+    // priceInput.value =
   }
 }

@@ -15,3 +15,7 @@ export const FilterType = {
   FUTURE: `future`,
   PAST: `past`
 };
+
+export const ErrorMessages = {
+  WRONG_DESTINATION: `Такой пункт назначения невозможен. Выберите один из списка.`,
+};
