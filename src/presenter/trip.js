@@ -1,22 +1,31 @@
 import Sorting from '../view/trip-sort.js';
 import Events from '../view/trip-events.js';
 import PointPresenter from './point.js';
+import PointNewPresenter from './point-new.js';
+import {filter} from '../utils/filter.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
-import {updateItem} from "../utils/common.js";
+import {UpdateType, UserAction, FilterType} from '../const.js';
 
 export default class Trip {
-  constructor(tripContainer) {
+  constructor(tripContainer, pointsModel, filterModel) {
     this._tripContainer = tripContainer;
+    this._pointsModel = pointsModel;
+    this._filterModel = filterModel;
     this._sortingComponent = null;
     this._eventsComponent = null;
     this._pointPresenter = {};
 
-    this._handlePointChange = this._handlePointChange.bind(this);
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeSwitch = this._handleModeSwitch.bind(this);
+
+    this._pointsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
   }
 
-  init(points, sortings) {
-    this._points = points;
+  init(sortings) {
+    this._points = this._getPoints();
     this._sortings = sortings;
     this._destinations = Array.from(new Set(this._points.map((point) => point.destination.name)));
 
@@ -48,9 +57,22 @@ export default class Trip {
     remove(prevEventsComponent);
   }
 
+  createPoint() {
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this._pointNewPresenter.init(this._destinations);
+  }
+
   destroy() {
     remove(this._sortingComponent);
     remove(this._eventsComponent);
+  }
+
+  _getPoints() {
+    const filterType = this._filterModel.getFilter();
+    const points = this._pointsModel.getPoints();
+    const filtredPoints = filter[filterType](points);
+
+    return filtredPoints;
   }
 
   _getSort() {
@@ -66,24 +88,65 @@ export default class Trip {
   }
 
   _renderTripPoint(tripPoint) {
-    const piontPresenter = new PointPresenter(this._eventsComponent, this._handlePointChange, this._handleModeSwitch);
+    const piontPresenter = new PointPresenter(this._eventsComponent, this._handleViewAction, this._handleModeSwitch);
 
     piontPresenter.init(tripPoint, this._destinations);
     this._pointPresenter[tripPoint.id] = piontPresenter;
   }
 
   _renderTripPoints() {
-    for (const point of this._points) {
+    this._pointNewPresenter = new PointNewPresenter(this._eventsComponent, this._handleViewAction);
+
+    for (const point of this._getPoints()) {
       this._renderTripPoint(point);
     }
   }
 
-  _handlePointChange(updatedPoint) {
-    this._points = updateItem(this._points, updatedPoint);
-    this._pointPresenter[updatedPoint.id].init(updatedPoint, this._destinations);
+  _clearTrip() {
+    this._pointNewPresenter.destroy();
+
+    Object
+      .values(this._pointPresenter)
+      .forEach((presenter) => presenter.destroy());
+
+    this._pointPresenter = {};
+  }
+
+  _handleViewAction(actionType, updateType, update) {
+    switch (actionType) {
+      case UserAction.UPDATE_POINT:
+        this._pointsModel.updatePoint(updateType, update);
+        break;
+      case UserAction.ADD_POINT:
+        this._pointsModel.addPoint(updateType, update);
+        break;
+      case UserAction.DELETE_POINT:
+        this._pointsModel.deletePoint(updateType, update);
+        break;
+    }
+  }
+
+  _handleModelEvent(updateType, data) {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this._pointPresenter[data.id].init(data, this._destinations);
+        break;
+
+      case UpdateType.MINOR:
+        this._clearTrip();
+        this._renderTripPoints();
+        break;
+
+      case UpdateType.MAJOR:
+        this._clearTrip();
+        this._renderTripPoints();
+        break;
+    }
   }
 
   _handleModeSwitch() {
+    this._pointNewPresenter.destroy();
+
     Object
       .values(this._pointPresenter)
       .forEach((presenter) => presenter.resetViewToDefault());

@@ -1,34 +1,38 @@
 import TripInfo from '../view/trip-info.js';
 import TripCost from '../view/trip-cost.js';
 import Menu from '../view/main-menu.js';
-import Filter from '../view/trip-filters.js';
+
+import FilterPresenter from '../presenter/filter.js';
 import {render, RenderPosition} from '../utils/render.js';
 
 export default class Info {
-  constructor(tripInfoContainer, tripControlsContainer) {
+  constructor(tripInfoContainer, tripControlsContainer, pointsModel, filterModel) {
     this._tripInfoContainer = tripInfoContainer;
     this._tripMenuContainer = tripControlsContainer[`menu`];
     this._tripFilterContainer = tripControlsContainer[`filter`];
+    this._pointsModel = pointsModel;
+    this._filterModel = filterModel;
     this._tripInfoComponent = new TripInfo();
     this._tripCostComponent = new TripCost();
     this._menuComponent = new Menu();
-    this._filterComponent = new Filter();
   }
 
-  init(points, menulinks, filters) {
-    this._points = points;
+  init(menulinks) {
+    this._points = this._getPoints();
     this._menulinks = menulinks;
-    this._filters = filters;
 
     this._getCost();
     this._getInfo();
     this._getMenu();
-    this._getFilter();
 
     this._renderInfo();
     this._renderCost();
     this._renderMenu();
     this._renderFilter();
+  }
+
+  _getPoints() {
+    return this._pointsModel.getPoints();
   }
 
   _getCost() {
@@ -49,10 +53,6 @@ export default class Info {
     this._menuComponent = new Menu(this._menulinks);
   }
 
-  _getFilter() {
-    this._filterComponent = new Filter(this._filters);
-  }
-
   _renderInfo() {
 
     render(this._tripInfoContainer, this._tripInfoComponent, RenderPosition.AFTERBEGIN);
@@ -70,6 +70,7 @@ export default class Info {
   }
 
   _renderFilter() {
-    render(this._tripFilterContainer, this._filterComponent, RenderPosition.BEFOREEND);
+    const filterPresenter = new FilterPresenter(this._tripFilterContainer, this._filterModel, this._pointsModel);
+    filterPresenter.init();
   }
 }

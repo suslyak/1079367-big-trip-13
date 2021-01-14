@@ -1,6 +1,7 @@
 import EditPointForm from '../view/edit-trip-point.js';
 import TripPoint from '../view/trip-point.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
+import {UserAction, UpdateType} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -17,11 +18,12 @@ export default class Point {
     this._editPointComponent = null;
     this._mode = Mode.DEFAULT;
 
-
     this._handleEditClick = this._handleEditClick.bind(this);
     this._handleCloseEditClick = this._handleCloseEditClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
+    this._handleFormSubmit = this._handleFormSubmit.bind(this);
   }
 
   init(point, possibleDestiantions = []) {
@@ -37,6 +39,8 @@ export default class Point {
     this._pointComponent.setEditClickHandler(this._handleEditClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setEditClickHandler(this._handleCloseEditClick);
+    this._editPointComponent.setDeleteClickHandler(this._handleDeleteClick);
+    this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
 
     if (prevPointComponent === null || prevEditPointComponent === null) {
       render(this._tripContainer, this._pointComponent, RenderPosition.BEFOREEND);
@@ -101,6 +105,8 @@ export default class Point {
 
   _handleFavoriteClick() {
     this._changeData(
+        UserAction.UPDATE_POINT,
+        UpdateType.PATCH,
         Object.assign(
             {},
             this._point,
@@ -108,6 +114,22 @@ export default class Point {
               favorite: !this._point.favorite
             }
         )
+    );
+  }
+
+  _handleDeleteClick(point) {
+    this._changeData(
+        UserAction.DELETE_POINT,
+        UpdateType.MINOR,
+        point
+    );
+  }
+
+  _handleFormSubmit(point) {
+    this._changeData(
+        UserAction.UPDATE_POINT,
+        UpdateType.MINOR,
+        point
     );
   }
 }
