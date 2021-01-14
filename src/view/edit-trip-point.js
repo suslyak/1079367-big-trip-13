@@ -342,22 +342,4 @@ export default class EditPointForm extends SmartView {
 
     return data;
   }
-
-  _validateForm() {
-
-  }
-
-  _setFormValidations() {
-    const form = this.getElement().querySelector(`event--edit`);
-    const destinationInput = form.querySelector(`[name='event-destination']`);
-    // const priceInput = form.querySelector(`[name='event-price']`);
-
-    if (this._possibleDestinations.some((destination) => destination === destinationInput.value)) {
-      destinationInput.setCustomValidity(``);
-    } else {
-      destinationInput.setCustomValidity(ErrorMessages.WRONG_DESTINATION);
-    }
-
-    // priceInput.value =
-  }
 }

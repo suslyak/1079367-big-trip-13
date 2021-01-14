@@ -1,4 +1,5 @@
 import AbstractView from './abstract.js';
+import {POINT_TYPES} from '../mock/trip-point.js';
 
 import dayjs from 'dayjs';
 
@@ -29,7 +30,7 @@ export default class TripPoint extends AbstractView {
     super();
 
     const {
-      pointType = `Flight`,
+      pointType = POINT_TYPES[5],
       selectedOffers = [],
       destination = {},
       start = dayjs(),
