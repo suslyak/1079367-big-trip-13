@@ -7,6 +7,10 @@ import {POINT_TYPES} from '../mock/trip-point.js';
 import {OFFERS, DESTINATIONS} from '../mock/trip-point.js';
 
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+
 dayjs.extend(customParseFormat);
 
 const getDestinationPictures = (pictures) => {
@@ -57,6 +61,8 @@ export default class EditPointForm extends SmartView {
     this._possibleDestinations = destinationsAvailable;
     this._isEmpty = (point.id.length === 0);
     this._data = EditPointForm.parsePointToData(point);
+    this._startDatepicker = null;
+    this._endDatepicker = null;
 
     // В принципе, не обязательно, т.к. в ТЗ может быть открыта одновременно только одна форма,
     // но вдруг это изменится в будущем.
@@ -73,6 +79,8 @@ export default class EditPointForm extends SmartView {
     this._priceInputHandler = this._priceInputHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setStartDatepicker();
+    this._setEndDatepicker();
   }
 
   reset(point) {
@@ -183,10 +191,10 @@ export default class EditPointForm extends SmartView {
 
             <div class="event__field-group  event__field-group--time">
               <label class="visually-hidden" for="event-start-time-${this._inputId}">From</label>
-              <input class="event__input  event__input--time" id="event-start-time-${this._inputId}" type="text" name="event-start-time" value="${this._start.format(`DD/MM/YY hh:mm`)}">
+              <input class="event__input  event__input--time" id="event-start-time-${this._inputId}" type="text" name="event-start-time" value="${this._start.format(`DD/MM/YY HH:mm`)}">
               &mdash;
               <label class="visually-hidden" for="event-end-time-${this._inputId}">To</label>
-              <input class="event__input  event__input--time" id="event-end-time-${this._inputId}" type="text" name="event-end-time" value="${this._end.format(`DD/MM/YY hh:mm`)}">
+              <input class="event__input  event__input--time" id="event-end-time-${this._inputId}" type="text" name="event-end-time" value="${this._end.format(`DD/MM/YY HH:mm`)}">
             </div>
 
             <div class="event__field-group  event__field-group--price">
@@ -237,11 +245,13 @@ export default class EditPointForm extends SmartView {
     priceInput.addEventListener(`input`, this._priceInputHandler);
   }
 
+  // больше не нужно, но вдруг понадобится повесть еще событие
   _setStartDateChangeHandlers() {
     const startDateInput = this.getElement().querySelector(`input[name='event-start-time']`);
     startDateInput.addEventListener(`change`, this._startDateChangeHandler);
   }
 
+  // больше не нужно, но вдруг понадобится повесть еще событие
   _setEndDateChangeHandlers() {
     const endDateInput = this.getElement().querySelector(`input[name='event-end-time']`);
 
@@ -305,18 +315,19 @@ export default class EditPointForm extends SmartView {
     evt.target.value = evt.target.value.replace(/\D/g, ``);
   }
 
-  _startDateChangeHandler(evt) {
-    evt.preventDefault();
+  _startDateChangeHandler() {
+    const inputValue = this._startDatepicker.input.value;
 
     this.updateData({
-      start: dayjs(evt.target.value, `DD/MM/YY hh:mm`)
+      start: dayjs(inputValue, `DD/MM/YY hh:mm`)
     }, true);
   }
 
-  _endDateChangeHandler(evt) {
-    evt.preventDefault();
+  _endDateChangeHandler() {
+    const inputValue = this._endDatepicker.input.value;
+
     this.updateData({
-      end: dayjs(evt.target.value, `DD/MM/YY hh:mm`)
+      end: dayjs(inputValue, `DD/MM/YY HH:mm`)
     }, true);
   }
 
@@ -337,8 +348,6 @@ export default class EditPointForm extends SmartView {
     this._setDestinationChangeHandlers();
     this._setPriceChangeHandlers();
     this._setPriceInputHandlers();
-    this._setStartDateChangeHandlers();
-    this._setEndDateChangeHandlers();
   }
 
   setEditClickHandler(callback) {
@@ -350,11 +359,53 @@ export default class EditPointForm extends SmartView {
     }
   }
 
+  _setStartDatepicker() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    this._startDatepicker = flatpickr(
+        this.getElement().querySelector(`input[name='event-start-time']`),
+        {
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._data.start.format(`DD/MM/YY HH:mm`),
+          enableTime: true,
+          onChange: this._startDateChangeHandler,
+          errorHandler: () => {
+            return;
+          }
+        }
+    );
+  }
+
+  _setEndDatepicker() {
+    if (this._endDatepicker) {
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
+
+    this._endDatepicker = flatpickr(
+        this.getElement().querySelector(`input[name='event-end-time']`),
+        {
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._data.end.format(`DD/MM/YY HH:mm`),
+          enableTime: true,
+          onChange: this._endDateChangeHandler,
+          errorHandler: () => {
+            return;
+          }
+        }
+    );
+  }
+
   restoreHandlers() {
     this._setInnerHandlers();
     this.setEditClickHandler(this._callback.editClick);
     this.setDeleteClickHandler(this._callback.deleteClick);
     this.setFormSubmitHandler(this._callback.submitClick);
+    this._setStartDatepicker();
+    this._setEndDatepicker();
   }
 
   static parsePointToData(point) {
