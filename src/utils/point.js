@@ -1,25 +1,13 @@
-export const sortByStartDates = (a, b) => {
-  // сортирует объекты dayjs
+import dayjs from 'dayjs';
 
-  if (a.start.isBefore(b.start)) {
-    return -1;
-  }
-  if (b.start.isBefore(a.start)) {
-    return 1;
-  }
-
-  return 0;
-};
-
-export const sortByPrice = (a, b) => {
-  // сортирует объекты, имеющие свойство cost
-
-  if (b.cost < a.cost) {
-    return -1;
-  }
-  if (b.cost > a.cost) {
-    return 1;
-  }
-
-  return 0;
+export const getDuration = (start = dayjs(), end = dayjs()) => {
+  const termDays = end.diff(start, `days`);
+  const termHours = end.diff(start, `hours`) - termDays * 24;
+  const termMinutes = end.diff(start, `minutes`) - (termHours + termDays * 24) * 60;
+  return [
+    termDays ? `${termDays.toString().padStart(2, `0`)}D` : ``,
+    (termDays || termHours) ? `${termHours.toString().padStart(2, `0`)}H` : ``,
+    `${termMinutes.toString().padStart(2, `0`)}M`
+  ]
+  .filter((term) => term).join(` `);
 };

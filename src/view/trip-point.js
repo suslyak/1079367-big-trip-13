@@ -1,5 +1,6 @@
 import AbstractView from './abstract.js';
 import {POINT_TYPES} from '../mock/trip-point.js';
+import {getDuration} from '../utils/point.js';
 
 import dayjs from 'dayjs';
 
@@ -51,18 +52,6 @@ export default class TripPoint extends AbstractView {
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
-  getDuration(start = this._start, end = this._end) {
-    const termDays = end.diff(start, `days`);
-    const termHours = end.diff(start, `hours`) - termDays * 24;
-    const termMinutes = end.diff(start, `minutes`) - (termHours + termDays * 24) * 60;
-    return [
-      termDays ? `${termDays.toString().padStart(2, `0`)}D` : ``,
-      (termDays || termHours) ? `${termHours.toString().padStart(2, `0`)}H` : ``,
-      `${termMinutes.toString().padStart(2, `0`)}M`
-    ]
-    .filter((term) => term).join(` `);
-  }
-
   _createPointTemplate() {
     return `
       <li class="trip-events__item">
@@ -78,7 +67,7 @@ export default class TripPoint extends AbstractView {
             &mdash;
             <time class="event__end-time" datetime="${this._end.format(`YYYY-MM-DDTHH:mm`)}">${this._end.format(`HH:mm`)}</time>
             </p>
-            <p class="event__duration">${this.getDuration(this._start, this._end)}</p>
+            <p class="event__duration">${getDuration(this._start, this._end)}</p>
         </div>
         <p class="event__price">
             &euro;&nbsp;<span class="event__price-value">${this._cost}</span>

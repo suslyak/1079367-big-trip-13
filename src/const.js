@@ -19,3 +19,11 @@ export const FilterType = {
 export const ErrorMessages = {
   WRONG_DESTINATION: `Такой пункт назначения невозможен. Выберите один из списка.`,
 };
+
+export const SortType = {
+  DAY: `day`,
+  EVENT: `event`,
+  TIME: `time`,
+  PRICE: `price`,
+  OFFERS: `offers`
+};

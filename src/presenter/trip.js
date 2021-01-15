@@ -3,6 +3,8 @@ import Events from '../view/trip-events.js';
 import PointPresenter from './point.js';
 import PointNewPresenter from './point-new.js';
 import {filter} from '../utils/filter.js';
+import {sortings} from '../utils/sorting.js';
+import {SortType} from '../const.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
 import {UpdateType, UserAction, FilterType} from '../const.js';
 
@@ -14,19 +16,23 @@ export default class Trip {
     this._sortingComponent = null;
     this._eventsComponent = null;
     this._pointPresenter = {};
+    this._currentSorting = SortType.DAY;
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeSwitch = this._handleModeSwitch.bind(this);
+
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+
 
     this._pointsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
 
   }
 
-  init(sortings) {
-    this._points = this._getPoints();
-    this._sortings = sortings;
+  init() {
+    this._points = this._getPoints(); // потом переедет в функцию рендера, сейчас временно вызывается дважды
+    this._sortings = Object.values(sortings);
     this._destinations = Array.from(new Set(this._points.map((point) => point.destination.name)));
 
     const prevSortingComponent = this._sortingComponent;
@@ -34,19 +40,23 @@ export default class Trip {
 
     this._destinations.sort();
 
-    this._getSort();
+    this._sortingComponent = new Sorting(this._currentSorting);
     this._eventsComponent = new Events();
 
-    //  предположим, что сортировка перерендериваться без перезагрузки всей страницы не будет
+    this._sortingComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
+
     if (prevSortingComponent === null) {
       this._renderSorting();
     }
 
-    //  Сейчас смысла мало, но вдруг понадобится переинициировать весь список точек
     if (prevEventsComponent === null) {
       this._renderEvents();
       this._renderTripPoints();
       return;
+    }
+
+    if (this._tripContainer.contains(prevSortingComponent.getElement())) {
+      replace(this._sortingComponent, prevSortingComponent);
     }
 
     if (this._tripContainer.contains(prevEventsComponent.getElement())) {
@@ -54,6 +64,7 @@ export default class Trip {
       this._renderTripPoints();
     }
 
+    remove(prevSortingComponent);
     remove(prevEventsComponent);
   }
 
@@ -71,12 +82,18 @@ export default class Trip {
     const filterType = this._filterModel.getFilter();
     const points = this._pointsModel.getPoints();
     const filtredPoints = filter[filterType](points);
-
+    Object.values(sortings).find((sorting) => sorting.name === this._currentSorting).result(filtredPoints);
     return filtredPoints;
   }
 
-  _getSort() {
-    this._sortingComponent = new Sorting(this._sortings);
+  _generateSorting(points) {
+    return Object.values(sortings).map(([sortingName, sorting]) => {
+      return {
+        name: sortingName,
+        result: sorting(points).result,
+        disabled: sorting(points).disabled,
+      };
+    });
   }
 
   _renderSorting() {
@@ -102,7 +119,7 @@ export default class Trip {
     }
   }
 
-  _clearTrip() {
+  _clearTrip({resetSorting = false} = {}) {
     this._pointNewPresenter.destroy();
 
     Object
@@ -110,6 +127,21 @@ export default class Trip {
       .forEach((presenter) => presenter.destroy());
 
     this._pointPresenter = {};
+
+    if (resetSorting) {
+      this._currentSorting = SortType.DAY;
+    }
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSorting === sortType) {
+      return;
+    }
+
+    this._currentSorting = sortType;
+
+    this._clearTrip({resetSorting: false});
+    this.init();
   }
 
   _handleViewAction(actionType, updateType, update) {

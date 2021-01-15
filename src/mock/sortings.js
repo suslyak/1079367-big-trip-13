@@ -1,4 +1,4 @@
-import {sortByStartDates, sortByPrice} from '../utils/point.js';
+import {sortByStartDates, sortByPrice} from '../utils/sorting.js';
 
 const sortingsMap = {
   day: (points) => ({result: points.filter(() => true), disabled: false}),
