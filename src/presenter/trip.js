@@ -86,16 +86,6 @@ export default class Trip {
     return filtredPoints;
   }
 
-  _generateSorting(points) {
-    return Object.values(sortings).map(([sortingName, sorting]) => {
-      return {
-        name: sortingName,
-        result: sorting(points).result,
-        disabled: sorting(points).disabled,
-      };
-    });
-  }
-
   _renderSorting() {
     render(this._tripContainer, this._sortingComponent, RenderPosition.BEFOREEND);
   }

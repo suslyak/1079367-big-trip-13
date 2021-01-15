@@ -3,27 +3,13 @@ import {SortType} from '../const.js';
 export const sortByStartDates = (a, b) => {
   // сортирует объекты, имеющие свойство start, содержащее объект dayjs
 
-  if (a.start.isBefore(b.start)) {
-    return -1;
-  }
-  if (b.start.isBefore(a.start)) {
-    return 1;
-  }
-
-  return 0;
+  return a.start - b.start;
 };
 
 export const sortByPrice = (a, b) => {
   // сортирует объекты, имеющие свойство cost
 
-  if (b.cost < a.cost) {
-    return -1;
-  }
-  if (b.cost > a.cost) {
-    return 1;
-  }
-
-  return 0;
+  return b.cost - a.cost;
 };
 
 export const sortByTime = (a, b) => {
@@ -33,14 +19,7 @@ export const sortByTime = (a, b) => {
     return obj.end.diff(obj.start);
   };
 
-  if (duration(b) < duration(a)) {
-    return -1;
-  }
-  if (duration(b) > duration(a)) {
-    return 1;
-  }
-
-  return 0;
+  return duration(b) - duration(a);
 };
 
 export const sortings = {
