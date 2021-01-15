@@ -1,4 +1,6 @@
-import Observer from "../utils/observer.js";
+import dayjs from 'dayjs';
+
+import Observer from '../utils/observer.js';
 
 export default class Point extends Observer {
   constructor() {
@@ -12,6 +14,19 @@ export default class Point extends Observer {
 
   getPoints() {
     return this._points;
+  }
+
+  getEmptyPoint() {
+    return {
+      id: ``,
+      pointType: `flight`,
+      selectedOffers: [],
+      destination: {},
+      start: dayjs(),
+      end: dayjs(),
+      cost: ``,
+      favorite: false,
+    };
   }
 
   updatePoint(updateType, update) {

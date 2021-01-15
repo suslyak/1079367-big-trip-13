@@ -4,9 +4,7 @@ import PointsModel from "./model/points.js";
 import FilterModel from "./model/filter.js";
 import {getNavigationLinks} from './mock/navigation.js';
 import {generatePoint} from './mock/trip-point.js';
-import {generateSorting} from './mock/sortings.js';
-
-import {sortByStartDates} from './utils/point.js';
+import {sortByStartDates} from './utils/sorting.js';
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -32,7 +30,7 @@ const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, poi
 const tripPresenter = new TripPresenter(eventsElement, pointsModel, filterModel);
 
 infoPresenter.init(getNavigationLinks());
-tripPresenter.init(generateSorting(tripPoints));
+tripPresenter.init();
 
 document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (evt) => {
   evt.preventDefault();

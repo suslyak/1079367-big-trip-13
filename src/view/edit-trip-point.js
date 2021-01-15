@@ -6,6 +6,9 @@ import {ErrorMessages} from '../const.js';
 import {POINT_TYPES} from '../mock/trip-point.js';
 import {OFFERS, DESTINATIONS} from '../mock/trip-point.js';
 
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
+
 const getDestinationPictures = (pictures) => {
   return pictures.reduce((destinationsPictureElements, picture) => (
     destinationsPictureElements + `<img class="event__photo" src="${picture}" alt="Event photo">`
@@ -43,18 +46,16 @@ export default class EditPointForm extends SmartView {
     super();
 
     const {
-      pointType = POINT_TYPES[5],
       start = dayjs(),
       end = dayjs(),
       cost = ``
     } = point;
 
-    this._type = pointType;
     this._start = start;
     this._end = end;
     this._cost = cost;
     this._possibleDestinations = destinationsAvailable;
-    this._isEmpty = Object.keys(point).length === 0;
+    this._isEmpty = (point.id.length === 0);
     this._data = EditPointForm.parsePointToData(point);
 
     // В принципе, не обязательно, т.к. в ТЗ может быть открыта одновременно только одна форма,
@@ -65,6 +66,8 @@ export default class EditPointForm extends SmartView {
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
     this._priceChangeHandler = this._priceChangeHandler.bind(this);
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
     this._deleteClickHandler = this._deleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
@@ -147,7 +150,7 @@ export default class EditPointForm extends SmartView {
   }
 
   _createEditPointTemplate(data) {
-    const {pointType: type = `flight`, destination = {}, selectedOffers, availableOffers} = data;
+    const {pointType: type = `flight`, destination = {}, selectedOffers, availableOffers = OFFERS[`flight`]} = data;
 
     return `
       <li class="trip-events__item">
@@ -234,6 +237,17 @@ export default class EditPointForm extends SmartView {
     priceInput.addEventListener(`input`, this._priceInputHandler);
   }
 
+  _setStartDateChangeHandlers() {
+    const startDateInput = this.getElement().querySelector(`input[name='event-start-time']`);
+    startDateInput.addEventListener(`change`, this._startDateChangeHandler);
+  }
+
+  _setEndDateChangeHandlers() {
+    const endDateInput = this.getElement().querySelector(`input[name='event-end-time']`);
+
+    endDateInput.addEventListener(`change`, this._endDateChangeHandler);
+  }
+
   setDeleteClickHandler(callback) {
     this._callback.deleteClick = callback;
     this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteClickHandler);
@@ -279,6 +293,7 @@ export default class EditPointForm extends SmartView {
 
   _priceChangeHandler(evt) {
     evt.preventDefault();
+
     evt.target.value = evt.target.value.replace(/\D/g, ``); // на случай смены value кулхацкером не через ввод в инпут
     this.updateData({
       cost: evt.target.value
@@ -288,6 +303,21 @@ export default class EditPointForm extends SmartView {
   _priceInputHandler(evt) {
     evt.preventDefault();
     evt.target.value = evt.target.value.replace(/\D/g, ``);
+  }
+
+  _startDateChangeHandler(evt) {
+    evt.preventDefault();
+
+    this.updateData({
+      start: dayjs(evt.target.value, `DD/MM/YY hh:mm`)
+    }, true);
+  }
+
+  _endDateChangeHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      end: dayjs(evt.target.value, `DD/MM/YY hh:mm`)
+    }, true);
   }
 
   _deleteClickHandler(evt) {
@@ -307,6 +337,8 @@ export default class EditPointForm extends SmartView {
     this._setDestinationChangeHandlers();
     this._setPriceChangeHandlers();
     this._setPriceInputHandlers();
+    this._setStartDateChangeHandlers();
+    this._setEndDateChangeHandlers();
   }
 
   setEditClickHandler(callback) {
@@ -341,23 +373,5 @@ export default class EditPointForm extends SmartView {
     delete data.availableOffers;
 
     return data;
-  }
-
-  _validateForm() {
-
-  }
-
-  _setFormValidations() {
-    const form = this.getElement().querySelector(`event--edit`);
-    const destinationInput = form.querySelector(`[name='event-destination']`);
-    // const priceInput = form.querySelector(`[name='event-price']`);
-
-    if (this._possibleDestinations.some((destination) => destination === destinationInput.value)) {
-      destinationInput.setCustomValidity(``);
-    } else {
-      destinationInput.setCustomValidity(ErrorMessages.WRONG_DESTINATION);
-    }
-
-    // priceInput.value =
   }
 }
