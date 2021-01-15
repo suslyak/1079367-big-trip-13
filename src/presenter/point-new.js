@@ -5,9 +5,10 @@ import {UserAction, UpdateType} from '../const.js';
 import {nanoid} from 'nanoid';
 
 export default class PointNew {
-  constructor(pointListContainer, changeData) {
+  constructor(pointListContainer, changeData, pointsModel) {
     this._pointListContainer = pointListContainer;
     this._changeData = changeData;
+    this._pointsModel = pointsModel;
 
     this._pointEditComponent = null;
 
@@ -23,7 +24,7 @@ export default class PointNew {
 
     this._possibleDestinations = possibleDestiantions;
 
-    this._pointEditComponent = new EditPointForm({}, this._possibleDestinations);
+    this._pointEditComponent = new EditPointForm(this._pointsModel.getEmptyPoint(), this._possibleDestinations);
     this._pointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._pointEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 

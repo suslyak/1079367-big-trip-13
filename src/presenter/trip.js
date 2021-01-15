@@ -112,7 +112,7 @@ export default class Trip {
   }
 
   _renderTripPoints() {
-    this._pointNewPresenter = new PointNewPresenter(this._eventsComponent, this._handleViewAction);
+    this._pointNewPresenter = new PointNewPresenter(this._eventsComponent, this._handleViewAction, this._pointsModel);
 
     for (const point of this._getPoints()) {
       this._renderTripPoint(point);
@@ -140,7 +140,7 @@ export default class Trip {
 
     this._currentSorting = sortType;
 
-    this._clearTrip({resetSorting: false});
+    this._clearTrip();
     this.init();
   }
 
@@ -166,12 +166,12 @@ export default class Trip {
 
       case UpdateType.MINOR:
         this._clearTrip();
-        this._renderTripPoints();
+        this.init();
         break;
 
       case UpdateType.MAJOR:
-        this._clearTrip();
-        this._renderTripPoints();
+        this._clearTrip({resetSorting: true});
+        this.init();
         break;
     }
   }
