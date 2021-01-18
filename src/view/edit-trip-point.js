@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import SmartView from './smart.js';
-import {ErrorMessages} from '../const.js';
+import {ErrorMessages, ErrorColors, DefaultColors} from '../const.js';
 
 import {POINT_TYPES} from '../mock/trip-point.js';
 import {OFFERS, DESTINATIONS} from '../mock/trip-point.js';
@@ -77,6 +77,7 @@ export default class EditPointForm extends SmartView {
     this._deleteClickHandler = this._deleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
+    this._dateClosePopupHandler = this._dateClosePopupHandler.bind(this);
 
     this._setInnerHandlers();
     this._setStartDatepicker();
@@ -205,7 +206,7 @@ export default class EditPointForm extends SmartView {
               <input class="event__input  event__input--price" id="event-price-${this._inputId}" type="text" name="event-price" value="${this._cost}">
             </div>
 
-            <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+            <button class="event__save-btn  btn  btn--blue" type="submit" ${this._checkDates() ? `` : `disabled`}>Save</button>
             <button class="event__reset-btn" type="reset">${this._isEmpty ? `Cancel` : `Delete`}</button>
             ${this.drawRollUpButton()}
           </header>
@@ -219,6 +220,10 @@ export default class EditPointForm extends SmartView {
 
   getTemplate() {
     return this._createEditPointTemplate(this._data);
+  }
+
+  _checkDates() {
+    return this._data.start.isBefore(this._data.end);
   }
 
   _setPointTypeChangeHandlers() {
@@ -331,6 +336,24 @@ export default class EditPointForm extends SmartView {
     }, true);
   }
 
+  _dateClosePopupHandler() {
+    const datesInputs = this.getElement().querySelectorAll(`.event__input--time`);
+
+    if (!this._checkDates()) {
+      this.getElement().querySelector(`.event__save-btn`).disabled = true;
+
+      datesInputs.forEach((input) => {
+        input.style.color = ErrorColors.INPUT;
+      });
+    } else {
+      this.getElement().querySelector(`.event__save-btn`).disabled = false;
+
+      datesInputs.forEach((input) => {
+        input.style.color = DefaultColors.INPUT;
+      });
+    }
+  }
+
   _deleteClickHandler(evt) {
     evt.preventDefault();
     this._callback.deleteClick(EditPointForm.parseDataToPoint(this._data));
@@ -365,13 +388,16 @@ export default class EditPointForm extends SmartView {
       this._startDatepicker = null;
     }
 
+    const dateInput = this.getElement().querySelector(`input[name='event-start-time']`);
+
     this._startDatepicker = flatpickr(
-        this.getElement().querySelector(`input[name='event-start-time']`),
+        dateInput,
         {
           dateFormat: `d/m/y H:i`,
           defaultDate: this._data.start.format(`DD/MM/YY HH:mm`),
           enableTime: true,
           onChange: this._startDateChangeHandler,
+          onClose: this._dateClosePopupHandler,
           errorHandler: () => {
             return;
           }
@@ -385,13 +411,16 @@ export default class EditPointForm extends SmartView {
       this._endDatepicker = null;
     }
 
+    const dateInput = this.getElement().querySelector(`input[name='event-end-time']`);
+
     this._endDatepicker = flatpickr(
-        this.getElement().querySelector(`input[name='event-end-time']`),
+        dateInput,
         {
           dateFormat: `d/m/y H:i`,
           defaultDate: this._data.end.format(`DD/MM/YY HH:mm`),
           enableTime: true,
           onChange: this._endDateChangeHandler,
+          onClose: this._dateClosePopupHandler,
           errorHandler: () => {
             return;
           }
