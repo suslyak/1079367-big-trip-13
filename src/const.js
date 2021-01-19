@@ -20,6 +20,14 @@ export const ErrorMessages = {
   WRONG_DESTINATION: `Такой пункт назначения невозможен. Выберите один из списка.`,
 };
 
+export const ErrorColors = {
+  INPUT: `red`,
+};
+
+export const DefaultColors = {
+  INPUT: `inherit`,
+};
+
 export const SortType = {
   DAY: `day`,
   EVENT: `event`,

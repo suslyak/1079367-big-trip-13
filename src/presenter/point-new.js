@@ -38,6 +38,7 @@ export default class PointNew {
       return;
     }
 
+    this._pointEditComponent.destroyCalendars();
     remove(this._pointEditComponent);
     this._pointEditComponent = null;
 

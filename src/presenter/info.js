@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import TripInfo from '../view/trip-info.js';
 import TripCost from '../view/trip-cost.js';
 import Menu from '../view/main-menu.js';
@@ -42,8 +44,8 @@ export default class Info {
   _getInfo() {
     const tripDestinationsGraph = Array.from(new Set(this._points.map((point) => point.destination.name)));
     const tripTimeGap = {
-      start: this._points[0].start,
-      end: this._points.slice(-1)[0].end
+      start: this._points[0] ? this._points[0].start : dayjs(),
+      end: this._points.slice(-1)[0] ? this._points.slice(-1)[0].end : dayjs()
     };
 
     this._tripInfoComponent = new TripInfo(tripDestinationsGraph, tripTimeGap);

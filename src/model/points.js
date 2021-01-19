@@ -23,7 +23,7 @@ export default class Point extends Observer {
       selectedOffers: [],
       destination: {},
       start: dayjs(),
-      end: dayjs(),
+      end: dayjs().add(1, `minute`),
       cost: ``,
       favorite: false,
     };
