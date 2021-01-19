@@ -60,6 +60,7 @@ export default class Point {
   }
 
   destroy() {
+    this._editPointComponent.destroyCalendars();
     remove(this._pointComponent);
     remove(this._editPointComponent);
   }

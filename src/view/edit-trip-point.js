@@ -428,6 +428,11 @@ export default class EditPointForm extends SmartView {
     );
   }
 
+  destroyCalendars() {
+    this._startDatepicker.destroy();
+    this._endDatepicker.destroy();
+  }
+
   restoreHandlers() {
     this._setInnerHandlers();
     this.setEditClickHandler(this._callback.editClick);

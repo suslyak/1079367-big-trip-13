@@ -13,7 +13,7 @@ const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
 const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
 const eventsElement = pageMainElement.querySelector(`.trip-events`);
 
-const tripPoints = new Array(20).fill().map(generatePoint);
+const tripPoints = new Array(0).fill().map(generatePoint);
 tripPoints.sort(sortByStartDates);
 
 const pointsModel = new PointsModel();

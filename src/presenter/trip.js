@@ -1,5 +1,6 @@
 import Sorting from '../view/trip-sort.js';
 import Events from '../view/trip-events.js';
+import NoPoints from '../view/no-points.js';
 import PointPresenter from './point.js';
 import PointNewPresenter from './point-new.js';
 import {filter} from '../utils/filter.js';
@@ -13,6 +14,7 @@ export default class Trip {
     this._tripContainer = tripContainer;
     this._pointsModel = pointsModel;
     this._filterModel = filterModel;
+    this._noPointsComponent = null;
     this._sortingComponent = null;
     this._eventsComponent = null;
     this._pointPresenter = {};
@@ -31,41 +33,53 @@ export default class Trip {
   }
 
   init() {
+    const prevEventsComponent = this._eventsComponent;
+
+    if (prevEventsComponent === null) {
+      this._eventsComponent = new Events();
+      this._renderEvents();
+
+    }
+
+    if (!this._pointsModel.getPoints().length) {
+      remove(this._noPointsComponent);
+
+      if (this._pointNewPresenter) {
+        this._pointNewPresenter.destroy();
+      }
+
+      this._noPointsComponent = new NoPoints();
+
+      this._pointNewPresenter = new PointNewPresenter(this._eventsComponent, this._handleViewAction, this._pointsModel);
+      render(this._tripContainer, this._noPointsComponent, RenderPosition.BEFOREEND);
+
+      return;
+    }
+
+    remove(this._noPointsComponent);
     this._points = this._getPoints(); // потом переедет в функцию рендера, сейчас временно вызывается дважды
     this._sortings = Object.values(sortings);
     this._destinations = Array.from(new Set(this._points.map((point) => point.destination.name)));
 
     const prevSortingComponent = this._sortingComponent;
-    const prevEventsComponent = this._eventsComponent;
 
     this._destinations.sort();
 
     this._sortingComponent = new Sorting(this._currentSorting);
-    this._eventsComponent = new Events();
-
     this._sortingComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
 
     if (prevSortingComponent === null) {
       this._renderSorting();
-    }
-
-    if (prevEventsComponent === null) {
-      this._renderEvents();
       this._renderTripPoints();
       return;
     }
 
     if (this._tripContainer.contains(prevSortingComponent.getElement())) {
       replace(this._sortingComponent, prevSortingComponent);
-    }
-
-    if (this._tripContainer.contains(prevEventsComponent.getElement())) {
-      replace(this._eventsComponent, prevEventsComponent);
       this._renderTripPoints();
     }
 
     remove(prevSortingComponent);
-    remove(prevEventsComponent);
   }
 
   createPoint() {
@@ -87,7 +101,7 @@ export default class Trip {
   }
 
   _renderSorting() {
-    render(this._tripContainer, this._sortingComponent, RenderPosition.BEFOREEND);
+    render(this._tripContainer, this._sortingComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderEvents() {
