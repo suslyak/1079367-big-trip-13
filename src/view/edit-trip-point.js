@@ -77,7 +77,7 @@ export default class EditPointForm extends SmartView {
     this._deleteClickHandler = this._deleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
-    this._dateClosePopupHandler = this._dateClosePopupHandler.bind(this);
+    this._datePopupCloseHandler = this._datePopupCloseHandler.bind(this);
 
     this._setInnerHandlers();
     this._setStartDatepicker();
@@ -336,7 +336,7 @@ export default class EditPointForm extends SmartView {
     }, true);
   }
 
-  _dateClosePopupHandler() {
+  _datePopupCloseHandler() {
     const datesInputs = this.getElement().querySelectorAll(`.event__input--time`);
 
     if (!this._checkDates()) {
@@ -397,7 +397,7 @@ export default class EditPointForm extends SmartView {
           defaultDate: this._data.start.format(`DD/MM/YY HH:mm`),
           enableTime: true,
           onChange: this._startDateChangeHandler,
-          onClose: this._dateClosePopupHandler,
+          onClose: this._datePopupCloseHandler,
           errorHandler: () => {
             return;
           }
@@ -420,7 +420,7 @@ export default class EditPointForm extends SmartView {
           defaultDate: this._data.end.format(`DD/MM/YY HH:mm`),
           enableTime: true,
           onChange: this._endDateChangeHandler,
-          onClose: this._dateClosePopupHandler,
+          onClose: this._datePopupCloseHandler,
           errorHandler: () => {
             return;
           }
