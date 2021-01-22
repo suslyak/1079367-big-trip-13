@@ -17,14 +17,15 @@ export default class PointNew {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(possibleDestiantions = []) {
+  init(possibleDestiantions = [], offers = []) {
     if (this._pointEditComponent !== null) {
       return;
     }
 
     this._possibleDestinations = possibleDestiantions;
+    this._allOffers = offers;
 
-    this._pointEditComponent = new EditPointForm(this._pointsModel.getEmptyPoint(), this._possibleDestinations);
+    this._pointEditComponent = new EditPointForm(this._pointsModel.getEmptyPoint(), this._possibleDestinations, this._allOffers);
     this._pointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._pointEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
