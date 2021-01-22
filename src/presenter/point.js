@@ -11,7 +11,7 @@ const Mode = {
 export default class Point {
   constructor(tripContainer, changeData, switchMode) {
     this._tripContainer = tripContainer;
-    this._possibleDestinations = [];
+    this._destiantions = [];
     this._changeData = changeData;
     this._switchMode = switchMode;
     this._pointComponent = null;
@@ -26,15 +26,16 @@ export default class Point {
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
   }
 
-  init(point, possibleDestiantions = []) {
+  init(point, destiantions = [], offers = []) {
     this._point = point;
-    this._possibleDestinations = possibleDestiantions;
+    this._destiantions = destiantions;
+    this._allOffers = offers;
 
     const prevPointComponent = this._pointComponent;
     const prevEditPointComponent = this._editPointComponent;
 
     this._pointComponent = new TripPoint(this._point);
-    this._editPointComponent = new EditPointForm(this._point, this._possibleDestinations);
+    this._editPointComponent = new EditPointForm(this._point, this._destiantions, this._allOffers);
 
     this._pointComponent.setEditClickHandler(this._handleEditClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);

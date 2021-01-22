@@ -8,8 +8,9 @@ export default class Point extends Observer {
     this._points = [];
   }
 
-  setPoints(points) {
+  setPoints(updateType, points) {
     this._points = points.slice();
+    this._notify(updateType);
   }
 
   getPoints() {
@@ -67,5 +68,82 @@ export default class Point extends Observer {
     ];
 
     this._notify(updateType);
+  }
+
+  static adaptToClient(point) {
+    const adaptedPoint = Object.assign(
+        {},
+        point,
+        {
+          pointType: point.type,
+          selectedOffers: point.offers
+            ? point.offers
+                .map((offer) => ({
+                  name: point.type,
+                  title: offer.title,
+                  cost: offer.price.toString()
+                }))
+            : [],
+          destination: point.destination
+            ? {
+              name: point.destination.name,
+              description: {
+                text: point.destination.description,
+                pictures: point.destination.pictures
+              }
+            }
+            : {},
+          start: point.date_from !== null ? dayjs(point.date_from) : point.date_from,
+          end: point.date_to !== null ? dayjs(point.date_to) : point.date_to,
+          cost: point.base_price.toString(),
+          favorite: point.is_favorite
+        }
+    );
+
+    delete adaptedPoint.type;
+    delete adaptedPoint.offers;
+    delete adaptedPoint.date_from;
+    delete adaptedPoint.date_to;
+    delete adaptedPoint.base_price;
+    delete adaptedPoint.is_favorite;
+
+    return adaptedPoint;
+  }
+
+  static adaptToServer(point) {
+    const adaptedPoint = Object.assign(
+        {},
+        point,
+        {
+          type: point.pointType,
+          offers: point.selectedOffers !== null
+            ? point.selectedOffers
+                .map((offer) => ({
+                  title: offer.title,
+                  price: parseInt(offer.cost, 10)
+                }))
+            : point.selectedOffers,
+          destination: point.destination !== null
+            ? {
+              name: point.destination.name,
+              description: point.destination.description.text,
+              pictures: point.destination.description.pictures
+            }
+            : point.destination,
+          date_from: point.start !== null ? point.start.toISOString() : point.start,
+          date_to: point.end !== null ? point.end.toISOString() : point.end,
+          base_price: parseInt(point.cost, 10),
+          is_favorite: point.favorite
+        }
+    );
+
+    delete adaptedPoint.pointType;
+    delete adaptedPoint.selectedOffers;
+    delete adaptedPoint.start;
+    delete adaptedPoint.end;
+    delete adaptedPoint.cost;
+    delete adaptedPoint.favorite;
+
+    return adaptedPoint;
   }
 }

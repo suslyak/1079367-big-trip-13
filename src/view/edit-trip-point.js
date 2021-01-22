@@ -2,10 +2,6 @@ import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import SmartView from './smart.js';
 import {ErrorMessages, ErrorColors, DefaultColors} from '../const.js';
-
-import {POINT_TYPES} from '../mock/trip-point.js';
-import {OFFERS, DESTINATIONS} from '../mock/trip-point.js';
-
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import flatpickr from "flatpickr";
 
@@ -15,7 +11,7 @@ dayjs.extend(customParseFormat);
 
 const getDestinationPictures = (pictures) => {
   return pictures.reduce((destinationsPictureElements, picture) => (
-    destinationsPictureElements + `<img class="event__photo" src="${picture}" alt="Event photo">`
+    destinationsPictureElements + `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
   ), ``);
 };
 
@@ -46,7 +42,7 @@ const getDestinationInfoTemplate = (destination) => {
 };
 
 export default class EditPointForm extends SmartView {
-  constructor(point = {}, destinationsAvailable = []) {
+  constructor(point = {}, destinations = [], offers = []) {
     super();
 
     const {
@@ -58,9 +54,10 @@ export default class EditPointForm extends SmartView {
     this._start = start;
     this._end = end;
     this._cost = cost;
-    this._possibleDestinations = destinationsAvailable;
+    this._destinations = destinations;
+    this._offers = offers;
+    this._possibleDestinationsNames = this._destinations.map((destination) => destination.name);
     this._isEmpty = (point.id.length === 0);
-    this._data = EditPointForm.parsePointToData(point);
     this._startDatepicker = null;
     this._endDatepicker = null;
 
@@ -77,7 +74,10 @@ export default class EditPointForm extends SmartView {
     this._deleteClickHandler = this._deleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
-    this._dateClosePopupHandler = this._dateClosePopupHandler.bind(this);
+    this._datePopupCloseHandler = this._datePopupCloseHandler.bind(this);
+    EditPointForm.parsePointToData = EditPointForm.parsePointToData.bind(this);
+
+    this._data = EditPointForm.parsePointToData(point);
 
     this._setInnerHandlers();
     this._setStartDatepicker();
@@ -102,8 +102,8 @@ export default class EditPointForm extends SmartView {
   }
 
   getDestinationsOptions() {
-    if (this._possibleDestinations.length) {
-      return this._possibleDestinations.reduce((destinationsOptionElements, option) => (
+    if (this._possibleDestinationsNames.length) {
+      return this._possibleDestinationsNames.reduce((destinationsOptionElements, option) => (
         destinationsOptionElements + `<option value="${option}"></option>`
       ), ``);
     }
@@ -112,7 +112,7 @@ export default class EditPointForm extends SmartView {
   }
 
   getAvailableTypesTemplate(selectedType) {
-    return POINT_TYPES.map((type) => {
+    return Object.keys(this._offers).map((type) => {
       const isChecked = type === selectedType;
 
       return `
@@ -127,7 +127,7 @@ export default class EditPointForm extends SmartView {
     if (availableOffers.length) {
       return availableOffers.map((offer) => {
         const offerId = nanoid(8);
-        const isChecked = selectedOffers.some((selectedOffer) => selectedOffer.id === offer.id);
+        const isChecked = selectedOffers.some((selectedOffer) => selectedOffer.title === offer.title);
 
         return `
           <div class="event__offer-selector">
@@ -159,7 +159,7 @@ export default class EditPointForm extends SmartView {
   }
 
   _createEditPointTemplate(data) {
-    const {pointType: type = `flight`, destination = {}, selectedOffers, availableOffers = OFFERS[`flight`]} = data;
+    const {pointType: type = `flight`, destination = {}, selectedOffers, availableOffers = this._offers[`flight`]} = data;
 
     return `
       <li class="trip-events__item">
@@ -285,16 +285,16 @@ export default class EditPointForm extends SmartView {
       this.updateData({
         pointType: evt.target.value,
         selectedOffers: [],
-        availableOffers: (evt.target.value in OFFERS) ? OFFERS[evt.target.value] : []
+        availableOffers: (evt.target.value in this._offers) ? this._offers[evt.target.value] : []
       });
     }
   }
 
   _destinationChangeHandler(evt) {
     evt.preventDefault();
-    const destinationFromValue = DESTINATIONS.find((destination) => destination.name === evt.currentTarget.value);
+    const destinationFromValue = this._destinations.find((destination) => destination.name === evt.currentTarget.value);
 
-    if (this._possibleDestinations.some((destination) => destination === evt.currentTarget.value)) {
+    if (this._possibleDestinationsNames.some((destinationName) => destinationName === evt.currentTarget.value)) {
       evt.currentTarget.setCustomValidity(``);
 
       this.updateData({
@@ -336,7 +336,7 @@ export default class EditPointForm extends SmartView {
     }, true);
   }
 
-  _dateClosePopupHandler() {
+  _datePopupCloseHandler() {
     const datesInputs = this.getElement().querySelectorAll(`.event__input--time`);
 
     if (!this._checkDates()) {
@@ -397,7 +397,7 @@ export default class EditPointForm extends SmartView {
           defaultDate: this._data.start.format(`DD/MM/YY HH:mm`),
           enableTime: true,
           onChange: this._startDateChangeHandler,
-          onClose: this._dateClosePopupHandler,
+          onClose: this._datePopupCloseHandler,
           errorHandler: () => {
             return;
           }
@@ -420,7 +420,7 @@ export default class EditPointForm extends SmartView {
           defaultDate: this._data.end.format(`DD/MM/YY HH:mm`),
           enableTime: true,
           onChange: this._endDateChangeHandler,
-          onClose: this._dateClosePopupHandler,
+          onClose: this._datePopupCloseHandler,
           errorHandler: () => {
             return;
           }
@@ -447,7 +447,7 @@ export default class EditPointForm extends SmartView {
         {},
         point,
         {
-          availableOffers: OFFERS[point.pointType] ? OFFERS[point.pointType] : []
+          availableOffers: this._offers[point.pointType] ? this._offers[point.pointType] : []
         }
     );
   }

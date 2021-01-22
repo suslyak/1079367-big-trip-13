@@ -45,7 +45,7 @@ export default class Info {
     const tripDestinationsGraph = Array.from(new Set(this._points.map((point) => point.destination.name)));
     const tripTimeGap = {
       start: this._points[0] ? this._points[0].start : dayjs(),
-      end: this._points.slice(-1)[0] ? this._points.slice(-1)[0].end : dayjs()
+      end: this._points[this._points.length - 1] ? this._points[this._points.length - 1].end : dayjs()
     };
 
     this._tripInfoComponent = new TripInfo(tripDestinationsGraph, tripTimeGap);
