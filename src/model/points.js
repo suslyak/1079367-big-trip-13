@@ -130,10 +130,10 @@ export default class Point extends Observer {
               pictures: point.destination.description.pictures
             }
             : point.destination,
-          date_from: point.start !== null ? point.start.toISOString() : point.start,
-          date_to: point.end !== null ? point.end.toISOString() : point.end,
-          base_price: parseInt(point.cost, 10),
-          is_favorite: point.favorite
+          [`date_from`]: point.start !== null ? point.start.toISOString() : point.start,
+          [`date_to`]: point.end !== null ? point.end.toISOString() : point.end,
+          [`base_price`]: parseInt(point.cost, 10),
+          [`is_favorite`]: point.favorite
         }
     );
 

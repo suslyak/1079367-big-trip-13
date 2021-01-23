@@ -7,6 +7,7 @@ export const UserAction = {
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
+  MEDIUM: `MEDIUM`,
   MAJOR: `MAJOR`,
   INIT: `INIT`
 };
@@ -36,3 +37,16 @@ export const SortType = {
   PRICE: `price`,
   OFFERS: `offers`
 };
+
+export const TripPointTypes = [
+  `taxi`,
+  `bus`,
+  `train`,
+  `ship`,
+  `transport`,
+  `drive`,
+  `flight`,
+  `check-in`,
+  `sightseeing`,
+  `restaurant`
+];

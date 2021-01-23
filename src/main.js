@@ -51,14 +51,14 @@ api.getTripPoints()
 
 api.getDestinations()
   .then((destinations) => {
-    destinationsModel.setDestinations(UpdateType.INIT, destinations);
+    setTimeout(() => destinationsModel.setDestinations(UpdateType.INIT, destinations), 5000);
   }).catch(() => {
     destinationsModel.setDestinations(UpdateType.INIT, []);
   });
 
 api.getOffers()
   .then((offers) => {
-    offersModel.setOffers(UpdateType.INIT, offers);
+    setTimeout(() => offersModel.setOffers(UpdateType.INIT, offers), 7000);
   }).catch(() => {
     offersModel.setOffers(UpdateType.INIT, []);
   });

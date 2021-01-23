@@ -9,14 +9,17 @@ const Mode = {
 };
 
 export default class Point {
-  constructor(tripContainer, changeData, switchMode) {
+  constructor(tripContainer, destinationsModel, offersModel, changeData, switchMode) {
     this._tripContainer = tripContainer;
-    this._destiantions = [];
+    this._destinationsModel = destinationsModel;
+    this._offersModel = offersModel;
     this._changeData = changeData;
     this._switchMode = switchMode;
     this._pointComponent = null;
     this._editPointComponent = null;
     this._mode = Mode.DEFAULT;
+    this._destinations = [];
+    this._allOffers = [];
 
     this._handleEditClick = this._handleEditClick.bind(this);
     this._handleCloseEditClick = this._handleCloseEditClick.bind(this);
@@ -24,18 +27,22 @@ export default class Point {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
+
+    this._destinationsModel.addObserver(this._handleModelEvent);
+    this._offersModel.addObserver(this._handleModelEvent);
   }
 
-  init(point, destiantions = [], offers = []) {
+  init(point) {
     this._point = point;
-    this._destiantions = destiantions;
-    this._allOffers = offers;
+    this._destinations = this._destinationsModel.getDestinations();
+    this._allOffers = this._offersModel.getOffers();
 
     const prevPointComponent = this._pointComponent;
     const prevEditPointComponent = this._editPointComponent;
 
     this._pointComponent = new TripPoint(this._point);
-    this._editPointComponent = new EditPointForm(this._point, this._destiantions, this._allOffers);
+    this._editPointComponent = new EditPointForm(this._point, this._destinations, this._allOffers);
 
     this._pointComponent.setEditClickHandler(this._handleEditClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -133,5 +140,13 @@ export default class Point {
         UpdateType.MINOR,
         point
     );
+  }
+
+  _handleModelEvent(updateType) {
+    switch (updateType) {
+      case UpdateType.INIT:
+        this.init(this._point);
+        break;
+    }
   }
 }

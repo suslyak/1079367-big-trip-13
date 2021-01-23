@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import SmartView from './smart.js';
-import {ErrorMessages, ErrorColors, DefaultColors} from '../const.js';
+import {ErrorMessages, ErrorColors, DefaultColors, TripPointTypes} from '../const.js';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import flatpickr from "flatpickr";
 
@@ -75,9 +75,9 @@ export default class EditPointForm extends SmartView {
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
     this._datePopupCloseHandler = this._datePopupCloseHandler.bind(this);
-    EditPointForm.parsePointToData = EditPointForm.parsePointToData.bind(this);
+    this.parsePointToData = this.parsePointToData.bind(this);
 
-    this._data = EditPointForm.parsePointToData(point);
+    this._data = this.parsePointToData(point);
 
     this._setInnerHandlers();
     this._setStartDatepicker();
@@ -86,7 +86,7 @@ export default class EditPointForm extends SmartView {
 
   reset(point) {
     this.updateData(
-        EditPointForm.parsePointToData(point)
+        this.parsePointToData(point)
     );
   }
 
@@ -112,7 +112,7 @@ export default class EditPointForm extends SmartView {
   }
 
   getAvailableTypesTemplate(selectedType) {
-    return Object.keys(this._offers).map((type) => {
+    return TripPointTypes.map((type) => {
       const isChecked = type === selectedType;
 
       return `
@@ -356,12 +356,12 @@ export default class EditPointForm extends SmartView {
 
   _deleteClickHandler(evt) {
     evt.preventDefault();
-    this._callback.deleteClick(EditPointForm.parseDataToPoint(this._data));
+    this._callback.deleteClick(this.parseDataToPoint(this._data));
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.submitClick(EditPointForm.parseDataToPoint(this._data));
+    this._callback.submitClick(this.parseDataToPoint(this._data));
 
     return;
   }
@@ -442,7 +442,7 @@ export default class EditPointForm extends SmartView {
     this._setEndDatepicker();
   }
 
-  static parsePointToData(point) {
+  parsePointToData(point) {
     return Object.assign(
         {},
         point,
@@ -452,7 +452,7 @@ export default class EditPointForm extends SmartView {
     );
   }
 
-  static parseDataToPoint(data) {
+  parseDataToPoint(data) {
     data = Object.assign({}, data);
 
     delete data.availableOffers;
