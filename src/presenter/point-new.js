@@ -2,8 +2,6 @@ import EditPointForm from '../view/edit-trip-point.js';
 import {remove, render, RenderPosition} from '../utils/render.js';
 import {UserAction, UpdateType} from '../const.js';
 
-import {nanoid} from 'nanoid';
-
 export default class PointNew {
   constructor(pointListContainer, destinationsModel, offersModel, changeData, pointsModel) {
     this._pointListContainer = pointListContainer;
@@ -23,12 +21,9 @@ export default class PointNew {
 
     this._destinationsModel.addObserver(this._handleModelEvent);
     this._offersModel.addObserver(this._handleModelEvent);
-    //console.log(this._possibleDestinations);
   }
 
   init() {
-    //console.log(this._possibleDestinations);
-
     if (this._pointEditComponent !== null) {
       this.destroy();
     }
@@ -40,13 +35,6 @@ export default class PointNew {
     render(this._pointListContainer, this._pointEditComponent, RenderPosition.AFTERBEGIN);
 
     document.addEventListener(`keydown`, this._escKeyDownHandler);
-  }
-
-  _renew() {
-    //console.log(this._possibleDestinations);
-    if (this._pointEditComponent !== null) {
-      this.init();
-    }
   }
 
   destroy() {
@@ -62,8 +50,6 @@ export default class PointNew {
   }
 
   _handleFormSubmit(point) {
-    point.id = nanoid(8);
-
     this._changeData(
         UserAction.ADD_POINT,
         UpdateType.MINOR,

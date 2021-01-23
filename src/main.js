@@ -30,23 +30,32 @@ const headerRenderPlaces = {
   filter: tripControlsElement
 };
 
-const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, pointsModel, filterModel);
-const tripPresenter = new TripPresenter(eventsElement, pointsModel, destinationsModel, offersModel, filterModel, api);
-
-infoPresenter.init(getNavigationLinks());
-tripPresenter.init();
-
-document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (evt) => {
+const newPointClickHandler = (evt) => {
   evt.preventDefault();
   tripPresenter.createPoint();
-});
+};
+
+const createInfo = () => {
+  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, pointsModel, filterModel);
+  const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
+
+  infoPresenter.init(getNavigationLinks());
+
+  newPointButton.removeEventListener(`click`, newPointClickHandler);
+  newPointButton.addEventListener(`click`, newPointClickHandler);
+};
+
+const tripPresenter = new TripPresenter(eventsElement, pointsModel, destinationsModel, offersModel, filterModel, api);
+tripPresenter.init();
 
 api.getTripPoints()
   .then((points) => {
     pointsModel.setPoints(UpdateType.INIT, points);
+    createInfo();
   })
   .catch(() => {
     pointsModel.setPoints(UpdateType.INIT, []);
+    createInfo();
   });
 
 api.getDestinations()

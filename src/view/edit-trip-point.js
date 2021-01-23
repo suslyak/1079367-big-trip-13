@@ -454,7 +454,7 @@ export default class EditPointForm extends SmartView {
 
   parseDataToPoint(data) {
     data = Object.assign({}, data);
-
+    data.cost = data.cost !== `` ? parseInt(data.cost, 10) : 0;
     delete data.availableOffers;
 
     return data;

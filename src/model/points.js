@@ -25,7 +25,7 @@ export default class Point extends Observer {
       destination: {},
       start: dayjs(),
       end: dayjs().add(1, `minute`),
-      cost: ``,
+      cost: 0,
       favorite: false,
     };
   }
@@ -81,21 +81,21 @@ export default class Point extends Observer {
                 .map((offer) => ({
                   name: point.type,
                   title: offer.title,
-                  cost: offer.price.toString()
+                  cost: offer.price
                 }))
             : [],
           destination: point.destination
             ? {
-              name: point.destination.name,
+              name: point.destination.name ? point.destination.name : ``,
               description: {
-                text: point.destination.description,
-                pictures: point.destination.pictures
+                text: point.destination.description ? point.destination.description : ``,
+                pictures: point.destination.pictures ? point.destination.pictures : []
               }
             }
             : {},
           start: point.date_from !== null ? dayjs(point.date_from) : point.date_from,
           end: point.date_to !== null ? dayjs(point.date_to) : point.date_to,
-          cost: point.base_price.toString(),
+          cost: point.base_price ? point.base_price : ``,
           favorite: point.is_favorite
         }
     );
@@ -116,23 +116,23 @@ export default class Point extends Observer {
         point,
         {
           type: point.pointType,
-          offers: point.selectedOffers !== null
+          offers: point.selectedOffers.length
             ? point.selectedOffers
                 .map((offer) => ({
                   title: offer.title,
-                  price: parseInt(offer.cost, 10)
+                  price: offer.cost
                 }))
             : point.selectedOffers,
-          destination: point.destination !== null
+          destination: Object.keys(point.destination).length
             ? {
-              name: point.destination.name,
-              description: point.destination.description.text,
-              pictures: point.destination.description.pictures
+              name: point.destination.name ? point.destination.name : ``,
+              description: point.destination.description.text ? point.destination.description.text : ``,
+              pictures: point.destination.description.text ? point.destination.description.pictures : []
             }
             : point.destination,
           [`date_from`]: point.start !== null ? point.start.toISOString() : point.start,
           [`date_to`]: point.end !== null ? point.end.toISOString() : point.end,
-          [`base_price`]: parseInt(point.cost, 10),
+          [`base_price`]: point.cost,
           [`is_favorite`]: point.favorite
         }
     );
