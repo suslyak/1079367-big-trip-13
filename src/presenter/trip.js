@@ -52,7 +52,6 @@ export default class Trip {
     }
 
     remove(this._noPointsComponent);
-    this._sortings = Object.values(sortings);
 
     const prevSortingComponent = this._sortingComponent;
 
@@ -61,14 +60,13 @@ export default class Trip {
 
     if (prevSortingComponent === null) {
       this._renderSorting();
-      this._renderTripPoints();
-      return;
     }
 
-    if (this._tripContainer.contains(prevSortingComponent.getElement())) {
+    if (prevSortingComponent !== null && this._tripContainer.contains(prevSortingComponent.getElement())) {
       replace(this._sortingComponent, prevSortingComponent);
-      this._renderTripPoints();
     }
+
+    this._renderTripPoints();
 
     remove(prevSortingComponent);
   }
@@ -122,7 +120,7 @@ export default class Trip {
       return;
     }
 
-    for (const point of this._pointsModel.getPoints()) {
+    for (const point of this._getPoints()) {
       this._renderTripPoint(point);
     }
   }
@@ -192,8 +190,10 @@ export default class Trip {
 
       case UpdateType.INIT:
         this._isLoading = false;
+
         remove(this._loadingComponent);
-        this._renderTripPoints();
+
+        this.init();
         break;
     }
   }
