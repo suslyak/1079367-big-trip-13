@@ -13,7 +13,7 @@ export default class Destination extends Observer {
   }
 
   getDestinations() {
-    return this._destinations;
+    return this._destinations.length ? this._destinations : [{name: `loading destinations..`, description: {text: ``, pictures: []}}];
   }
 
   static adaptToClient(destination) {

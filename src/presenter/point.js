@@ -8,6 +8,12 @@ const Mode = {
   EDITING: `EDITING`
 };
 
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};
+
 export default class Point {
   constructor(tripContainer, destinationsModel, offersModel, changeData, switchMode) {
     this._tripContainer = tripContainer;
@@ -92,6 +98,37 @@ export default class Point {
   resetViewToDefault() {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceFormToPoint();
+    }
+  }
+
+  setViewState(state) {
+    const resetFormState = () => {
+      this._editPointComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._editPointComponent.updateData({
+          isDisabled: true,
+          isSaving: true
+        });
+        break;
+
+      case State.DELETING:
+        this._editPointComponent.updateData({
+          isDisabled: true,
+          isDeleting: true
+        });
+        break;
+
+      case State.ABORTING:
+        this._pointComponent.shake(resetFormState);
+        this._editPointComponent.shake(resetFormState);
+        break;
     }
   }
 

@@ -9,7 +9,7 @@ export default class PointNew {
     this._pointsModel = pointsModel;
     this._destinationsModel = destinationsModel;
     this._offersModel = offersModel;
-    this._possibleDestinations = [];
+    this._possibleDestinations = this._destinationsModel.getDestinations();
     this._allOffers = [];
 
     this._pointEditComponent = null;
@@ -49,13 +49,31 @@ export default class PointNew {
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  setSaving() {
+    this._pointEditComponent.updateData({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this._pointEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._pointEditComponent.shake(resetFormState);
+  }
+
   _handleFormSubmit(point) {
     this._changeData(
         UserAction.ADD_POINT,
         UpdateType.MINOR,
         point
     );
-    this.destroy();
   }
 
   _handleDeleteClick() {

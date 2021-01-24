@@ -79,6 +79,15 @@ export default class EditPointForm extends SmartView {
 
     this._data = this.parsePointToData(point);
 
+    this._isDestinationLoading = this._destinations.length && this._destinations[0].name === `loading destinations..`;
+    this._isOffersLoading = this._offers[this._data.pointType]
+      ? Boolean(
+          this._offers[this._data.pointType].length
+          && this._offers[this._data.pointType][0].title === `loading offers..`)
+      : false;
+
+    this._dataLoading = this._isDestinationLoading || this._isOffersLoading;
+
     this._setInnerHandlers();
     this._setStartDatepicker();
     this._setEndDatepicker();
@@ -128,10 +137,11 @@ export default class EditPointForm extends SmartView {
       return availableOffers.map((offer) => {
         const offerId = nanoid(8);
         const isChecked = selectedOffers.some((selectedOffer) => selectedOffer.title === offer.title);
+        const isDisabled = offer.title === `loading offers..`;
 
         return `
           <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-${offerId}" type="checkbox" name="event-offer-${offer.name}" ${isChecked ? `checked` : ``}>
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-${offerId}" type="checkbox" name="event-offer-${offer.name}" ${isChecked ? `checked` : ``} ${isDisabled ? `disabled` : ``}>
             <label class="event__offer-label" for="event-offer-${offer.name}-${offerId}">
               <span class="event__offer-title">${offer.title}</span>
               &plus;&euro;&nbsp;
@@ -158,8 +168,36 @@ export default class EditPointForm extends SmartView {
     return ``;
   }
 
+  _initDestinationInputValue(destination) {
+    if (this._isDestinationLoading) {
+      return `loading destinations..`;
+    }
+
+    return destination.name ? destination.name : ``;
+  }
+
   _createEditPointTemplate(data) {
-    const {pointType: type = `flight`, destination = {}, selectedOffers, availableOffers = this._offers[`flight`]} = data;
+    const {
+      pointType: type = `flight`,
+      destination = {},
+      selectedOffers,
+      availableOffers = this._offers[`flight`],
+      isDisabled,
+      isSaving,
+      isDeleting
+    } = data;
+
+    const formDisabled = isDisabled || this._dataLoading || !this._checkDates();
+
+    const getCancelDeleteButton = () => {
+      if (this._isEmpty) {
+        return `<button class="event__reset-btn" type="reset">Cancel</button>`;
+      }
+
+      return isDeleting
+        ? `<button class="event__reset-btn" type="reset" ${formDisabled ? `disabled` : ``}>Deleting...</button>`
+        : `<button class="event__reset-btn" type="reset" ${formDisabled ? `disabled` : ``}>Delete</button>`;
+    };
 
     return `
       <li class="trip-events__item">
@@ -170,7 +208,7 @@ export default class EditPointForm extends SmartView {
                 <span class="visually-hidden">Choose event type</span>
                 <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
               </label>
-              <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${this._inputId}" type="checkbox">
+              <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${this._inputId}" type="checkbox" ${this._dataLoading ? `disabled` : ``}>
 
               <div class="event__type-list">
                 <fieldset class="event__type-group">
@@ -184,7 +222,13 @@ export default class EditPointForm extends SmartView {
               <label class="event__label  event__type-output" for="event-destination-${this._inputId}">
                 ${type}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-${this._inputId}" type="text" name="event-destination" value="${destination.name ? destination.name : ``}" list="destination-list-${this._inputId}">
+              <input
+                class="event__input  event__input--destination"
+                id="event-destination-${this._inputId}"
+                type="text" name="event-destination"
+                value="${this._initDestinationInputValue(destination)}"
+                list="destination-list-${this._inputId}"
+                ${this._dataLoading ? `disabled` : ``}>
               <datalist id="destination-list-${this._inputId}">
                 ${this.getDestinationsOptions()}
               </datalist>
@@ -203,11 +247,13 @@ export default class EditPointForm extends SmartView {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-${this._inputId}" type="text" name="event-price" value="${this._cost}">
+              <input class="event__input  event__input--price" id="event-price-${this._inputId}" type="text" name="event-price" value="${this._data.cost}" ${this._dataLoading ? `disabled` : ``}>
             </div>
 
-            <button class="event__save-btn  btn  btn--blue" type="submit" ${this._checkDates() ? `` : `disabled`}>Save</button>
-            <button class="event__reset-btn" type="reset">${this._isEmpty ? `Cancel` : `Delete`}</button>
+            <button class="event__save-btn  btn  btn--blue" type="submit" ${formDisabled ? `disabled` : ``}>
+              ${isSaving ? `Saving...` : `Save`}
+            </button>
+            ${getCancelDeleteButton()}
             ${this.drawRollUpButton()}
           </header>
           <section class="event__details">
@@ -447,7 +493,10 @@ export default class EditPointForm extends SmartView {
         {},
         point,
         {
-          availableOffers: this._offers[point.pointType] ? this._offers[point.pointType] : []
+          availableOffers: this._offers[point.pointType] ? this._offers[point.pointType] : [],
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
         }
     );
   }
@@ -455,7 +504,11 @@ export default class EditPointForm extends SmartView {
   parseDataToPoint(data) {
     data = Object.assign({}, data);
     data.cost = data.cost !== `` ? parseInt(data.cost, 10) : 0;
+
     delete data.availableOffers;
+    delete data.isDisabled;
+    delete data.isSaving;
+    delete data.isDeleting;
 
     return data;
   }
