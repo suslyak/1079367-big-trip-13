@@ -51,10 +51,11 @@ tripPresenter.init();
 api.getTripPoints()
   .then((points) => {
     pointsModel.setPoints(UpdateType.INIT, points);
-    createInfo();
   })
   .catch(() => {
     pointsModel.setPoints(UpdateType.INIT, []);
+  })
+  .finally(() => {
     createInfo();
   });
 

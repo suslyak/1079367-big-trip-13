@@ -174,7 +174,7 @@ export default class EditPointForm extends SmartView {
       return `loading destinations..`;
     }
 
-    return destination.name ? destination.name : ``;
+    return destination.name || ``;
   }
 
   _createEditPointTemplate(data) {
@@ -195,9 +195,7 @@ export default class EditPointForm extends SmartView {
         return `<button class="event__reset-btn" type="reset">Cancel</button>`;
       }
 
-      return isDeleting
-        ? `<button class="event__reset-btn" type="reset" ${formDisabled ? `disabled` : ``}>Deleting...</button>`
-        : `<button class="event__reset-btn" type="reset" ${formDisabled ? `disabled` : ``}>Delete</button>`;
+      return `<button class="event__reset-btn" type="reset" ${formDisabled ? `disabled` : ``}>${isDeleting ? `Deleting...` : `Delete`}</button>`;
     };
 
     return `
@@ -352,7 +350,7 @@ export default class EditPointForm extends SmartView {
       evt.currentTarget.setCustomValidity(``);
 
       this.updateData({
-        destination: destinationFromValue ? destinationFromValue : {}
+        destination: destinationFromValue || {}
       });
     } else {
       evt.currentTarget.setCustomValidity(ErrorMessages.WRONG_DESTINATION);
@@ -512,7 +510,7 @@ export default class EditPointForm extends SmartView {
         {},
         point,
         {
-          availableOffers: this._offers[point.pointType] ? this._offers[point.pointType] : [],
+          availableOffers: this._offers[point.pointType] || [],
           isDisabled: false,
           isSaving: false,
           isDeleting: false
