@@ -1,5 +1,5 @@
-import Observer from "../utils/observer.js";
-
+import Observer from '../utils/observer.js';
+import {TripPointTypes} from '../const.js';
 export default class Offer extends Observer {
   constructor() {
     super();
@@ -14,9 +14,15 @@ export default class Offer extends Observer {
 
   getOffers() {
     const outputedOffers = {};
-    this._offers.forEach((offersOfType) => {
-      outputedOffers[offersOfType.type] = offersOfType.offers;
-    });
+    if (this._offers.length) {
+      this._offers.forEach((offersOfType) => {
+        outputedOffers[offersOfType.type] = offersOfType.offers;
+      });
+    } else {
+      TripPointTypes.forEach((type) => {
+        outputedOffers[type] = [{name: type, title: `loading offers..`, cost: ``}];
+      });
+    }
 
     return outputedOffers;
   }
