@@ -74,6 +74,7 @@ export default class EditPointForm extends SmartView {
     this._deleteClickHandler = this._deleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
+    this._offersToggleHandler = this._offersToggleHandler.bind(this);
     this._datePopupCloseHandler = this._datePopupCloseHandler.bind(this);
     this.parsePointToData = this.parsePointToData.bind(this);
 
@@ -141,7 +142,7 @@ export default class EditPointForm extends SmartView {
 
         return `
           <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-${offerId}" type="checkbox" name="event-offer-${offer.name}" ${isChecked ? `checked` : ``} ${isDisabled ? `disabled` : ``}>
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-${offerId}" type="checkbox" data-offer-title="${offer.title}" name="event-offer-${offer.name}" ${isChecked ? `checked` : ``} ${isDisabled ? `disabled` : ``}>
             <label class="event__offer-label" for="event-offer-${offer.name}-${offerId}">
               <span class="event__offer-title">${offer.title}</span>
               &plus;&euro;&nbsp;
@@ -278,6 +279,13 @@ export default class EditPointForm extends SmartView {
     pointTypeRadioButtonsContainer.addEventListener(`click`, this._pointTypeChangeHandler);
   }
 
+  _setOffersToggleHandler() {
+    const offersContainer = this.getElement().querySelector(`.event__available-offers`);
+    if (offersContainer) {
+      offersContainer.addEventListener(`click`, this._offersToggleHandler);
+    }
+  }
+
   _setDestinationChangeHandlers() {
     const destinationInput = this.getElement().querySelector(`.event__input--destination`);
 
@@ -366,6 +374,16 @@ export default class EditPointForm extends SmartView {
     evt.target.value = evt.target.value.replace(/\D/g, ``);
   }
 
+  _offersToggleHandler(evt) {
+    if (evt.target && evt.target.matches(`input[type='checkbox']`)) {
+      if (!evt.target.checked) {
+        this._data.selectedOffers = this._data.selectedOffers.filter((offer) => offer.title !== evt.target.getAttribute(`data-offer-title`));
+      } else {
+        this._data.selectedOffers.push(this._offers[this._data.pointType].find((offer) => offer.title === evt.target.getAttribute(`data-offer-title`)));
+      }
+    }
+  }
+
   _startDateChangeHandler() {
     const inputValue = this._startDatepicker.input.value;
 
@@ -417,6 +435,7 @@ export default class EditPointForm extends SmartView {
     this._setDestinationChangeHandlers();
     this._setPriceChangeHandlers();
     this._setPriceInputHandlers();
+    this._setOffersToggleHandler();
   }
 
   setEditClickHandler(callback) {
