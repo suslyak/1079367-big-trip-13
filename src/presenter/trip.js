@@ -32,14 +32,16 @@ export default class Trip {
     this._handleModeSwitch = this._handleModeSwitch.bind(this);
 
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
-
-    this._pointsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
   }
 
   init() {
     const prevEventsComponent = this._eventsComponent;
+
+    this._pointsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+
+    this._pointsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
 
     if (prevEventsComponent === null) {
       this._eventsComponent = new Events();
@@ -77,8 +79,13 @@ export default class Trip {
   }
 
   destroy() {
+    this._clearTrip({resetSorting: true});
     remove(this._sortingComponent);
     remove(this._eventsComponent);
+
+    this._eventsComponent = null;
+    this._sortingComponent = null;
+    this._pointNewPresenter = null;
   }
 
   _getPoints() {

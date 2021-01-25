@@ -4,9 +4,8 @@ import PointsModel from './model/points.js';
 import DestinationsModel from "./model/destinations.js";
 import OffersModel from './model/offers.js';
 import FilterModel from './model/filter.js';
-import {getNavigationLinks} from './mock/navigation.js';
 import Api from './api/api.js';
-import {UpdateType} from './const.js';
+import {UpdateType, MenuItem} from './const.js';
 
 const AUTHORIZATION = `Basic iHG6PGr3zNr`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
@@ -36,10 +35,10 @@ const newPointClickHandler = (evt) => {
 };
 
 const createInfo = () => {
-  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, pointsModel, filterModel);
+  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, handleSiteMenuClick, pointsModel, filterModel);
   const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
 
-  infoPresenter.init(getNavigationLinks());
+  infoPresenter.init();
 
   newPointButton.removeEventListener(`click`, newPointClickHandler);
   newPointButton.addEventListener(`click`, newPointClickHandler);
@@ -47,6 +46,19 @@ const createInfo = () => {
 
 const tripPresenter = new TripPresenter(eventsElement, pointsModel, destinationsModel, offersModel, filterModel, api);
 tripPresenter.init();
+
+const handleSiteMenuClick = (menuItem, callback) => {
+  switch (menuItem) {
+    case MenuItem.POINTS:
+      tripPresenter.init();
+      callback(menuItem);
+      break;
+    case MenuItem.STATISTICS:
+      tripPresenter.destroy();
+      callback(menuItem);
+      break;
+  }
+};
 
 api.getTripPoints()
   .then((points) => {

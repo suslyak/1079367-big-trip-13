@@ -50,3 +50,8 @@ export const TripPointTypes = [
   `sightseeing`,
   `restaurant`
 ];
+
+export const MenuItem = {
+  POINTS: `Table`,
+  STATISTICS: `Stats`
+};
