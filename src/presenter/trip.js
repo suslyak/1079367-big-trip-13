@@ -137,7 +137,9 @@ export default class Trip {
   }
 
   _clearTrip({resetSorting = false} = {}) {
-    this._pointNewPresenter.destroy();
+    if (this._pointNewPresenter) {
+      this._pointNewPresenter.destroy();
+    }
 
     Object
       .values(this._pointPresenter)

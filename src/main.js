@@ -4,6 +4,8 @@ import PointsModel from './model/points.js';
 import DestinationsModel from "./model/destinations.js";
 import OffersModel from './model/offers.js';
 import FilterModel from './model/filter.js';
+import StatisticsView from "./view/statistics.js";
+import {render, remove, RenderPosition} from "./utils/render.js";
 import Api from './api/api.js';
 import {UpdateType, MenuItem} from './const.js';
 
@@ -17,7 +19,8 @@ const pageMainElement = document.querySelector(`.page-main`);
 const tripMainElement = pageHeaderElement.querySelector(`.trip-main`);
 const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
 const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
-const eventsElement = pageMainElement.querySelector(`.trip-events`);
+const mainContainerElement = pageMainElement.querySelector(`.page-body__container`);
+const eventsElement = mainContainerElement.querySelector(`.trip-events`);
 
 const pointsModel = new PointsModel();
 const destinationsModel = new DestinationsModel();
@@ -47,15 +50,24 @@ const createInfo = () => {
 const tripPresenter = new TripPresenter(eventsElement, pointsModel, destinationsModel, offersModel, filterModel, api);
 tripPresenter.init();
 
+const statisticsViewComponent = new StatisticsView();
+
 const handleSiteMenuClick = (menuItem, callback) => {
   switch (menuItem) {
     case MenuItem.POINTS:
       tripPresenter.init();
       callback(menuItem);
+      if (mainContainerElement.contains(statisticsViewComponent.getElement())) {
+        remove(statisticsViewComponent);
+      }
       break;
     case MenuItem.STATISTICS:
       tripPresenter.destroy();
       callback(menuItem);
+      if (!mainContainerElement.contains(statisticsViewComponent.getElement())) {
+        render(mainContainerElement, statisticsViewComponent, RenderPosition.BEFOREEND);
+      }
+      statisticsViewComponent.setCharts(pointsModel.getPoints());
       break;
   }
 };
