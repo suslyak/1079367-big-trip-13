@@ -2,11 +2,7 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import AbstractView from './abstract.js';
-import {TripPointTypes} from '../const.js';
-
-const BAR_HEIGHT = 55;
-
-const chartLabels = TripPointTypes.map((type) => type.toUpperCase());
+import {TripPointTypes, ChartParams} from '../const.js';
 
 const createStatisticsTemplate = () => {
   return `
@@ -28,18 +24,21 @@ const createStatisticsTemplate = () => {
 };
 
 const renderMoneyChart = (moneyCtx, points) => {
-  const chartMoneys = TripPointTypes
-    .map((type) => points
-      .filter((point) => point.pointType === type)
-        .reduce((total, point) => total + point.cost, 0));
+  const chartMoneys = points
+  .reduce((total, point) => Object.assign(
+      {},
+      total,
+      {
+        [point.pointType]: total[point.pointType] ? total[point.pointType] + point.cost : point.cost
+      }), {});
 
   return new Chart(moneyCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: chartLabels,
+      labels: Object.keys(chartMoneys),
       datasets: [{
-        data: chartMoneys,
+        data: Object.values(chartMoneys),
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -85,7 +84,7 @@ const renderMoneyChart = (moneyCtx, points) => {
             display: false,
             drawBorder: false
           },
-          minBarLength: 50
+          minBarLength: ChartParams.MIN_BAR_LENGTH
         }],
       },
       legend: {
@@ -96,23 +95,27 @@ const renderMoneyChart = (moneyCtx, points) => {
       }
     },
     dataset: {
-      barThickness: 44
+      barThickness: ChartParams.BAR_THICKNESS
     }
   });
 };
 
 const renderTypeChart = (typeCtx, points) => {
-  const chartCounts = TripPointTypes
-    .map((type) => points
-      .filter((point) => point.pointType === type).length);
+  const chartCounts = points
+  .reduce((total, point) => Object.assign(
+      {},
+      total,
+      {
+        [point.pointType]: total[point.pointType] ? ++total[point.pointType] : 1
+      }), {});
 
   return new Chart(typeCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: chartLabels,
+      labels: Object.keys(chartCounts),
       datasets: [{
-        data: chartCounts,
+        data: Object.values(chartCounts),
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -158,7 +161,7 @@ const renderTypeChart = (typeCtx, points) => {
             display: false,
             drawBorder: false
           },
-          minBarLength: 50
+          minBarLength: ChartParams.MIN_BAR_LENGTH
         }],
       },
       legend: {
@@ -169,24 +172,29 @@ const renderTypeChart = (typeCtx, points) => {
       }
     },
     dataset: {
-      barThickness: 44
+      barThickness: ChartParams.BAR_THICKNESS
     }
   });
 };
 
 const renderTimeChart = (timeCtx, points) => {
-  const chartDays = TripPointTypes
-  .map((type) => points
-    .filter((point) => point.pointType === type)
-      .reduce((total, point) => total + point.end.diff(point.start, `hour`), 0));
+  const chartHours = points
+  .reduce((total, point) => Object.assign(
+      {},
+      total,
+      {
+        [point.pointType]: total[point.pointType]
+          ? total[point.pointType] + point.end.diff(point.start, `hour`)
+          : point.end.diff(point.start, `hour`)
+      }), {});
 
   return new Chart(timeCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: chartLabels,
+      labels: Object.keys(chartHours),
       datasets: [{
-        data: chartDays,
+        data: Object.values(chartHours),
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -232,7 +240,7 @@ const renderTimeChart = (timeCtx, points) => {
             display: false,
             drawBorder: false
           },
-          minBarLength: 50
+          minBarLength: ChartParams.MIN_BAR_LENGTH
         }],
       },
       legend: {
@@ -243,7 +251,7 @@ const renderTimeChart = (timeCtx, points) => {
       }
     },
     dataset: {
-      barThickness: 44
+      barThickness: ChartParams.BAR_THICKNESS
     }
   });
 };
@@ -262,23 +270,23 @@ export default class Statistics extends AbstractView {
     return createStatisticsTemplate();
   }
 
-  setCharts(poits) {
+  setCharts(points) {
     if (this._typeCart !== null || this._moneyChart !== null || this._timeChart !== null) {
       this._typeCart = null;
       this._moneyChart = null;
       this._timeChart = null;
     }
 
-    const moneyCtx = document.querySelector(`.statistics__chart--money`);
-    const typeCtx = document.querySelector(`.statistics__chart--transport`);
-    const timeCtx = document.querySelector(`.statistics__chart--time`);
+    const moneyCtx = this.getElement().querySelector(`.statistics__chart--money`);
+    const typeCtx = this.getElement().querySelector(`.statistics__chart--transport`);
+    const timeCtx = this.getElement().querySelector(`.statistics__chart--time`);
 
-    moneyCtx.height = BAR_HEIGHT * 10;
-    typeCtx.height = BAR_HEIGHT * 10;
-    timeCtx.height = BAR_HEIGHT * 10;
+    moneyCtx.height = ChartParams.BAR_HEIGHT * TripPointTypes.length;
+    typeCtx.height = ChartParams.BAR_HEIGHT * TripPointTypes.length;
+    timeCtx.height = ChartParams.BAR_HEIGHT * TripPointTypes.length;
 
-    this._moneyCart = renderMoneyChart(moneyCtx, poits);
-    this._typeChart = renderTypeChart(typeCtx, poits);
-    this._timeCtx = renderTimeChart(timeCtx, poits);
+    this._moneyCart = renderMoneyChart(moneyCtx, points);
+    this._typeChart = renderTypeChart(typeCtx, points);
+    this._timeCtx = renderTimeChart(timeCtx, points);
   }
 }
