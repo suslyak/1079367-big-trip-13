@@ -57,6 +57,10 @@ const createInfo = () => {
 };
 
 const tripPresenter = new TripPresenter(eventsElement, siteMenu, pointsModel, destinationsModel, offersModel, filterModel, api);
+
+destinationsModel.loading = true;
+offersModel.loading = true;
+
 tripPresenter.init();
 
 api.getTripPoints()

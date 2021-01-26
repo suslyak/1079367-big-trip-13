@@ -9,7 +9,7 @@ export default class PointNew {
     this._pointsModel = pointsModel;
     this._destinationsModel = destinationsModel;
     this._offersModel = offersModel;
-    this._possibleDestinations = this._destinationsModel.getDestinations();
+    this._destinations = [];
     this._allOffers = [];
 
     this._pointEditComponent = null;
@@ -31,7 +31,14 @@ export default class PointNew {
     this._getDestinations();
     this._getOffers();
 
-    this._pointEditComponent = new EditPointForm(this._pointsModel.getEmptyPoint(), this._possibleDestinations, this._allOffers);
+    this._pointEditComponent = new EditPointForm(
+        this._pointsModel.getEmptyPoint(),
+        this._destinations,
+        this._allOffers,
+        this._destinationsModel.isLoading(),
+        this._offersModel.isLoading()
+    );
+
     this._pointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._pointEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
@@ -41,7 +48,7 @@ export default class PointNew {
   }
 
   _getDestinations() {
-    this._possibleDestinations = this._destinationsModel.getDestinations();
+    this._destinations = this._destinationsModel.getDestinations();
   }
 
   _getOffers() {
@@ -104,7 +111,7 @@ export default class PointNew {
   _handleModelEvent(updateType) {
     switch (updateType) {
       case UpdateType.INIT:
-        this._possibleDestinations = this._destinationsModel.getDestinations();
+        this._destinations = this._destinationsModel.getDestinations();
         this._allOffers = this._offersModel.getOffers();
 
         if (this._pointEditComponent !== null) {

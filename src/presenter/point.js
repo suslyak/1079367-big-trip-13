@@ -22,7 +22,7 @@ export default class Point {
     this._changeData = changeData;
     this._switchMode = switchMode;
     this._pointComponent = null;
-    this._editPointComponent = null;
+    this._pointEditComponent = null;
     this._mode = Mode.DEFAULT;
     this._destinations = [];
     this._allOffers = [];
@@ -45,16 +45,21 @@ export default class Point {
     this._allOffers = this._offersModel.getOffers();
 
     const prevPointComponent = this._pointComponent;
-    const prevEditPointComponent = this._editPointComponent;
+    const prevEditPointComponent = this._pointEditComponent;
 
     this._pointComponent = new TripPoint(this._point);
-    this._editPointComponent = new EditPointForm(this._point, this._destinations, this._allOffers);
+    this._pointEditComponent = new EditPointForm(
+        this._point,
+        this._destinations,
+        this._allOffers,
+        this._destinationsModel.isLoading(),
+        this._offersModel.isLoading());
 
     this._pointComponent.setEditClickHandler(this._handleEditClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
-    this._editPointComponent.setEditClickHandler(this._handleCloseEditClick);
-    this._editPointComponent.setDeleteClickHandler(this._handleDeleteClick);
-    this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
+    this._pointEditComponent.setEditClickHandler(this._handleCloseEditClick);
+    this._pointEditComponent.setDeleteClickHandler(this._handleDeleteClick);
+    this._pointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
 
     if (prevPointComponent === null || prevEditPointComponent === null) {
       render(this._tripContainer, this._pointComponent, RenderPosition.BEFOREEND);
@@ -66,7 +71,7 @@ export default class Point {
     }
 
     if (this._mode === Mode.EDITING) {
-      replace(this._editPointComponent, prevEditPointComponent);
+      replace(this._pointEditComponent, prevEditPointComponent);
     }
 
     remove(prevPointComponent);
@@ -76,14 +81,14 @@ export default class Point {
   destroy() {
     this._destinationsModel.removeObserver(this._handleModelEvent);
     this._offersModel.removeObserver(this._handleModelEvent);
-    this._editPointComponent.destroyCalendars();
+    this._pointEditComponent.destroyCalendars();
 
     remove(this._pointComponent);
-    remove(this._editPointComponent);
+    remove(this._pointEditComponent);
   }
 
   _replacePointToForm() {
-    replace(this._editPointComponent, this._pointComponent);
+    replace(this._pointEditComponent, this._pointComponent);
     document.addEventListener(`keydown`, this._escKeyDownHandler);
 
     this._switchMode();
@@ -92,7 +97,7 @@ export default class Point {
   }
 
   _replaceFormToPoint() {
-    replace(this._pointComponent, this._editPointComponent);
+    replace(this._pointComponent, this._pointEditComponent);
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
 
     this._mode = Mode.DEFAULT;
@@ -106,7 +111,7 @@ export default class Point {
 
   setViewState(state) {
     const resetFormState = () => {
-      this._editPointComponent.updateData({
+      this._pointEditComponent.updateData({
         isDisabled: false,
         isSaving: false,
         isDeleting: false
@@ -115,14 +120,14 @@ export default class Point {
 
     switch (state) {
       case State.SAVING:
-        this._editPointComponent.updateData({
+        this._pointEditComponent.updateData({
           isDisabled: true,
           isSaving: true
         });
         break;
 
       case State.DELETING:
-        this._editPointComponent.updateData({
+        this._pointEditComponent.updateData({
           isDisabled: true,
           isDeleting: true
         });
@@ -130,7 +135,7 @@ export default class Point {
 
       case State.ABORTING:
         this._pointComponent.shake(resetFormState);
-        this._editPointComponent.shake(resetFormState);
+        this._pointEditComponent.shake(resetFormState);
         break;
     }
   }
@@ -138,7 +143,7 @@ export default class Point {
   _escKeyDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
-      this._editPointComponent.reset(this._point);
+      this._pointEditComponent.reset(this._point);
       this._replaceFormToPoint();
     }
   }
@@ -148,7 +153,7 @@ export default class Point {
   }
 
   _handleCloseEditClick() {
-    this._editPointComponent.reset(this._point);
+    this._pointEditComponent.reset(this._point);
     this._replaceFormToPoint();
   }
 

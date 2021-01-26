@@ -1,6 +1,7 @@
 export default class Observer {
   constructor() {
     this._observers = [];
+    this.loading = false;
   }
 
   addObserver(observer) {
@@ -9,6 +10,10 @@ export default class Observer {
 
   removeObserver(observer) {
     this._observers = this._observers.filter((existedObserver) => existedObserver !== observer);
+  }
+
+  isLoading() {
+    return this.loading;
   }
 
   _notify(event, payload) {
