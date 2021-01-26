@@ -2,7 +2,7 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import AbstractView from './abstract.js';
-import {TripPointTypes, ChartParams} from '../const.js';
+import {ChartParams} from '../const.js';
 
 const createStatisticsTemplate = () => {
   return `
@@ -281,9 +281,11 @@ export default class Statistics extends AbstractView {
     const typeCtx = this.getElement().querySelector(`.statistics__chart--transport`);
     const timeCtx = this.getElement().querySelector(`.statistics__chart--time`);
 
-    moneyCtx.height = ChartParams.BAR_HEIGHT * TripPointTypes.length;
-    typeCtx.height = ChartParams.BAR_HEIGHT * TripPointTypes.length;
-    timeCtx.height = ChartParams.BAR_HEIGHT * TripPointTypes.length;
+    const numberOfTypes = Array.from(new Set(points.map((point) => point.pointType))).length;
+
+    moneyCtx.height = ChartParams.BAR_HEIGHT * numberOfTypes;
+    typeCtx.height = ChartParams.BAR_HEIGHT * numberOfTypes;
+    timeCtx.height = ChartParams.BAR_HEIGHT * numberOfTypes;
 
     this._moneyCart = renderMoneyChart(moneyCtx, points);
     this._typeChart = renderTypeChart(typeCtx, points);

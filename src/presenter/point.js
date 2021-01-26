@@ -74,7 +74,10 @@ export default class Point {
   }
 
   destroy() {
+    this._destinationsModel.removeObserver(this._handleModelEvent);
+    this._offersModel.removeObserver(this._handleModelEvent);
     this._editPointComponent.destroyCalendars();
+
     remove(this._pointComponent);
     remove(this._editPointComponent);
   }

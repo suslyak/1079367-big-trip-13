@@ -47,8 +47,6 @@ export default class Trip {
       remove(this._statisticsComponent);
     }
 
-    this._pointsModel.removeObserver(this._handleModelEvent);
-    this._filterModel.removeObserver(this._handleModelEvent);
     this._pointsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
 
@@ -62,7 +60,9 @@ export default class Trip {
       return;
     }
 
-    remove(this._noPointsComponent);
+    if (this._noPointsComponent !== null) {
+      remove(this._noPointsComponent);
+    }
 
     const prevSortingComponent = this._sortingComponent;
 
@@ -83,14 +83,25 @@ export default class Trip {
   }
 
   createPoint() {
+    if (!this._pointNewPresenter) {
+      return;
+    }
+
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._pointNewPresenter.init();
   }
 
+  _unsubscribe() {
+    this._pointsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+  }
+
   destroy() {
+    this._unsubscribe();
     this._clearTrip({resetSorting: true});
     remove(this._sortingComponent);
     remove(this._eventsComponent);
+    this._pointNewPresenter.destroy();
 
     this._eventsComponent = null;
     this._sortingComponent = null;
@@ -127,8 +138,6 @@ export default class Trip {
     }
 
     if (!this._pointsModel.getPoints().length) {
-      remove(this._noPointsComponent);
-
       this._noPointsComponent = new NoPoints();
 
       render(this._tripContainer, this._noPointsComponent, RenderPosition.BEFOREEND);
@@ -191,6 +200,7 @@ export default class Trip {
     this._currentSorting = sortType;
 
     this._clearTrip();
+    this._unsubscribe();
     this.init();
   }
 
@@ -234,11 +244,13 @@ export default class Trip {
 
       case UpdateType.MINOR:
         this._clearTrip();
+        this._unsubscribe();
         this.init();
         break;
 
       case UpdateType.MAJOR:
         this._clearTrip({resetSorting: true});
+        this._unsubscribe();
         this.init();
         break;
 
@@ -246,7 +258,7 @@ export default class Trip {
         this._isLoading = false;
 
         remove(this._loadingComponent);
-
+        this._unsubscribe();
         this.init();
         break;
     }

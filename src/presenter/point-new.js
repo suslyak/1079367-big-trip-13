@@ -18,15 +18,18 @@ export default class PointNew {
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
-
-    this._destinationsModel.addObserver(this._handleModelEvent);
-    this._offersModel.addObserver(this._handleModelEvent);
   }
 
   init() {
     if (this._pointEditComponent !== null) {
       this.destroy();
     }
+
+    this._destinationsModel.addObserver(this._handleModelEvent);
+    this._offersModel.addObserver(this._handleModelEvent);
+
+    this._getDestinations();
+    this._getOffers();
 
     this._pointEditComponent = new EditPointForm(this._pointsModel.getEmptyPoint(), this._possibleDestinations, this._allOffers);
     this._pointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
@@ -37,10 +40,21 @@ export default class PointNew {
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  _getDestinations() {
+    this._possibleDestinations = this._destinationsModel.getDestinations();
+  }
+
+  _getOffers() {
+    this._allOffers = this._offersModel.getOffers();
+  }
+
   destroy() {
     if (this._pointEditComponent === null) {
       return;
     }
+
+    this._destinationsModel.removeObserver(this._handleModelEvent);
+    this._offersModel.removeObserver(this._handleModelEvent);
 
     this._pointEditComponent.destroyCalendars();
     remove(this._pointEditComponent);
