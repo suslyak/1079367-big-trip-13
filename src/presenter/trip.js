@@ -1,26 +1,29 @@
 import Sorting from '../view/trip-sort.js';
 import Events from '../view/trip-events.js';
 import NoPoints from '../view/no-points.js';
-import Loading from "../view/loading.js";
+import Loading from '../view/loading.js';
+import StatisticsView from '../view/statistics.js';
 import PointPresenter, {State as PointPresenterViewState} from './point.js';
 import PointNewPresenter from './point-new.js';
 import {filter} from '../utils/filter.js';
 import {sortings} from '../utils/sorting.js';
 import {SortType} from '../const.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
-import {UpdateType, UserAction, FilterType} from '../const.js';
+import {UpdateType, UserAction, FilterType, MenuItem} from '../const.js';
 
 export default class Trip {
-  constructor(tripContainer, pointsModel, destinationsModel, offersModel, filterModel, api) {
+  constructor(tripContainer, siteMenu, pointsModel, destinationsModel, offersModel, filterModel, api) {
     this._tripContainer = tripContainer;
     this._pointsModel = pointsModel;
     this._filterModel = filterModel;
     this._offersModel = offersModel;
     this._destinationsModel = destinationsModel;
+    this._siteMenuComponent = siteMenu;
     this._noPointsComponent = null;
     this._sortingComponent = null;
     this._eventsComponent = null;
     this._loadingComponent = new Loading();
+    this._statisticsComponent = new StatisticsView();
     this._pointPresenter = {};
     this._pointNewPresenter = null;
     this._currentSorting = SortType.DAY;
@@ -30,16 +33,22 @@ export default class Trip {
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeSwitch = this._handleModeSwitch.bind(this);
-
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+    this._handleSiteMenuClick = this._handleSiteMenuClick.bind(this);
+
+    this._siteMenuComponent.setMenuClickHandler(this._handleSiteMenuClick);
   }
 
   init() {
     const prevEventsComponent = this._eventsComponent;
 
+    this._siteMenuComponent.setMenuItem(MenuItem.POINTS);
+    if (this._tripContainer.contains(this._statisticsComponent.getElement())) {
+      remove(this._statisticsComponent);
+    }
+
     this._pointsModel.removeObserver(this._handleModelEvent);
     this._filterModel.removeObserver(this._handleModelEvent);
-
     this._pointsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
 
@@ -151,6 +160,26 @@ export default class Trip {
 
     if (resetSorting) {
       this._currentSorting = SortType.DAY;
+    }
+  }
+
+  _handleSiteMenuClick(menuItem) {
+    switch (menuItem) {
+      case MenuItem.POINTS:
+        this.init();
+        this._siteMenuComponent.setMenuItem(menuItem);
+        if (this._tripContainer.contains(this._statisticsComponent.getElement())) {
+          remove(this._statisticsComponent);
+        }
+        break;
+      case MenuItem.STATISTICS:
+        this.destroy();
+        this._siteMenuComponent.setMenuItem(menuItem);
+        if (!this._tripContainer.contains(this._statisticsComponent.getElement())) {
+          render(this._tripContainer, this._statisticsComponent, RenderPosition.BEFOREEND);
+          this._statisticsComponent.setCharts(this._pointsModel.getPoints());
+        }
+        break;
     }
   }
 

@@ -4,8 +4,8 @@ import PointsModel from './model/points.js';
 import DestinationsModel from "./model/destinations.js";
 import OffersModel from './model/offers.js';
 import FilterModel from './model/filter.js';
-import StatisticsView from "./view/statistics.js";
-import {render, remove, RenderPosition} from "./utils/render.js";
+import SiteMenu from './view/main-menu.js';
+import {render} from "./utils/render.js";
 import Api from './api/api.js';
 import {UpdateType, MenuItem} from './const.js';
 
@@ -27,6 +27,8 @@ const destinationsModel = new DestinationsModel();
 const offersModel = new OffersModel();
 const filterModel = new FilterModel();
 
+const siteMenu = new SiteMenu(Object.values(MenuItem));
+
 const headerRenderPlaces = {
   menu: {container: tripControlsElement, referenceElement: menuReferenceElement},
   filter: tripControlsElement
@@ -37,40 +39,25 @@ const newPointClickHandler = (evt) => {
   tripPresenter.createPoint();
 };
 
+const renderMenu = () => {
+  const container = headerRenderPlaces.menu.container;
+  const position = headerRenderPlaces.menu.referenceElement;
+  render(container, siteMenu, position);
+};
+
 const createInfo = () => {
-  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, handleSiteMenuClick, pointsModel, filterModel);
+  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, pointsModel, filterModel);
   const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
 
   infoPresenter.init();
+  renderMenu();
 
   newPointButton.removeEventListener(`click`, newPointClickHandler);
   newPointButton.addEventListener(`click`, newPointClickHandler);
 };
 
-const tripPresenter = new TripPresenter(eventsElement, pointsModel, destinationsModel, offersModel, filterModel, api);
+const tripPresenter = new TripPresenter(eventsElement, siteMenu, pointsModel, destinationsModel, offersModel, filterModel, api);
 tripPresenter.init();
-
-const statisticsViewComponent = new StatisticsView();
-
-const handleSiteMenuClick = (menuItem, callback) => {
-  switch (menuItem) {
-    case MenuItem.POINTS:
-      tripPresenter.init();
-      callback(menuItem);
-      if (mainContainerElement.contains(statisticsViewComponent.getElement())) {
-        remove(statisticsViewComponent);
-      }
-      break;
-    case MenuItem.STATISTICS:
-      tripPresenter.destroy();
-      callback(menuItem);
-      if (!mainContainerElement.contains(statisticsViewComponent.getElement())) {
-        render(mainContainerElement, statisticsViewComponent, RenderPosition.BEFOREEND);
-      }
-      statisticsViewComponent.setCharts(pointsModel.getPoints());
-      break;
-  }
-};
 
 api.getTripPoints()
   .then((points) => {
