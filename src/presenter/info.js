@@ -3,12 +3,12 @@ import dayjs from 'dayjs';
 import TripInfo from '../view/trip-info.js';
 import TripCost from '../view/trip-cost.js';
 import Menu from '../view/main-menu.js';
-
+import {MenuItem} from '../const.js';
 import FilterPresenter from '../presenter/filter.js';
 import {render, RenderPosition} from '../utils/render.js';
 
 export default class Info {
-  constructor(tripInfoContainer, tripControlsContainer, pointsModel, filterModel) {
+  constructor(tripInfoContainer, tripControlsContainer, handleSiteMenuAction, pointsModel, filterModel) {
     this._tripInfoContainer = tripInfoContainer;
     this._tripMenuContainer = tripControlsContainer[`menu`];
     this._tripFilterContainer = tripControlsContainer[`filter`];
@@ -17,12 +17,13 @@ export default class Info {
     this._tripInfoComponent = new TripInfo();
     this._tripCostComponent = new TripCost();
     this._menuComponent = new Menu();
+    this._handleSiteMenuAction = handleSiteMenuAction;
+
   }
 
-  init(menulinks) {
+  init() {
     this._points = this._getPoints();
-    this._menulinks = menulinks;
-
+    this._menulinks = Object.values(MenuItem);
     this._getCost();
     this._getInfo();
     this._getMenu();
@@ -53,10 +54,10 @@ export default class Info {
 
   _getMenu() {
     this._menuComponent = new Menu(this._menulinks);
+    this._menuComponent.setMenuClickHandler(this._handleSiteMenuAction);
   }
 
   _renderInfo() {
-
     render(this._tripInfoContainer, this._tripInfoComponent, RenderPosition.AFTERBEGIN);
   }
 

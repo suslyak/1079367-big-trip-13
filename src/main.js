@@ -4,9 +4,10 @@ import PointsModel from './model/points.js';
 import DestinationsModel from "./model/destinations.js";
 import OffersModel from './model/offers.js';
 import FilterModel from './model/filter.js';
-import {getNavigationLinks} from './mock/navigation.js';
+import StatisticsView from "./view/statistics.js";
+import {render, remove, RenderPosition} from "./utils/render.js";
 import Api from './api/api.js';
-import {UpdateType} from './const.js';
+import {UpdateType, MenuItem} from './const.js';
 
 const AUTHORIZATION = `Basic iHG6PGr3zNr`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
@@ -18,7 +19,8 @@ const pageMainElement = document.querySelector(`.page-main`);
 const tripMainElement = pageHeaderElement.querySelector(`.trip-main`);
 const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
 const menuReferenceElement = tripControlsElement.querySelectorAll(`h2`)[1];
-const eventsElement = pageMainElement.querySelector(`.trip-events`);
+const mainContainerElement = pageMainElement.querySelector(`.page-body__container`);
+const eventsElement = mainContainerElement.querySelector(`.trip-events`);
 
 const pointsModel = new PointsModel();
 const destinationsModel = new DestinationsModel();
@@ -36,10 +38,10 @@ const newPointClickHandler = (evt) => {
 };
 
 const createInfo = () => {
-  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, pointsModel, filterModel);
+  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, handleSiteMenuClick, pointsModel, filterModel);
   const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
 
-  infoPresenter.init(getNavigationLinks());
+  infoPresenter.init();
 
   newPointButton.removeEventListener(`click`, newPointClickHandler);
   newPointButton.addEventListener(`click`, newPointClickHandler);
@@ -48,13 +50,36 @@ const createInfo = () => {
 const tripPresenter = new TripPresenter(eventsElement, pointsModel, destinationsModel, offersModel, filterModel, api);
 tripPresenter.init();
 
+const statisticsViewComponent = new StatisticsView();
+
+const handleSiteMenuClick = (menuItem, callback) => {
+  switch (menuItem) {
+    case MenuItem.POINTS:
+      tripPresenter.init();
+      callback(menuItem);
+      if (mainContainerElement.contains(statisticsViewComponent.getElement())) {
+        remove(statisticsViewComponent);
+      }
+      break;
+    case MenuItem.STATISTICS:
+      tripPresenter.destroy();
+      callback(menuItem);
+      if (!mainContainerElement.contains(statisticsViewComponent.getElement())) {
+        render(mainContainerElement, statisticsViewComponent, RenderPosition.BEFOREEND);
+      }
+      statisticsViewComponent.setCharts(pointsModel.getPoints());
+      break;
+  }
+};
+
 api.getTripPoints()
   .then((points) => {
     pointsModel.setPoints(UpdateType.INIT, points);
-    createInfo();
   })
   .catch(() => {
     pointsModel.setPoints(UpdateType.INIT, []);
+  })
+  .finally(() => {
     createInfo();
   });
 

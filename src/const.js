@@ -50,3 +50,14 @@ export const TripPointTypes = [
   `sightseeing`,
   `restaurant`
 ];
+
+export const MenuItem = {
+  POINTS: `Table`,
+  STATISTICS: `Stats`
+};
+
+export const ChartParams = {
+  BAR_HEIGHT: 55,
+  MIN_BAR_LENGTH: 50,
+  BAR_THICKNESS: 44
+};
