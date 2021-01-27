@@ -11,9 +11,9 @@ import {UpdateType, MenuItem} from './const.js';
 import Store from './api/store.js';
 import Provider from './api/provider.js';
 
-const AUTHORIZATION = `Basic iHG6PGr3zN`;
+const AUTHORIZATION = `Basic iHG6PGr3zNtt`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
-const STORE_PREFIX = `big-trip-localstorage2`;
+const STORE_PREFIX = `big-trip-localstorage`;
 const STORE_VER = `v13`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 
