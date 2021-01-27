@@ -21,6 +21,6 @@ export const updateItem = (items, update) => {
   ];
 };
 
-export const deepEqual = (firstObject, secondObject) => {
-  return JSON.stringify(firstObject) === JSON.stringify(secondObject);
+export const isOnline = () => {
+  return window.navigator.onLine;
 };

@@ -1,18 +1,25 @@
 import InfoPresenter from './presenter/info.js';
 import TripPresenter from './presenter/trip.js';
 import PointsModel from './model/points.js';
-import DestinationsModel from "./model/destinations.js";
+import DestinationsModel from './model/destinations.js';
 import OffersModel from './model/offers.js';
 import FilterModel from './model/filter.js';
 import SiteMenu from './view/main-menu.js';
-import {render} from "./utils/render.js";
+import {render} from './utils/render.js';
 import Api from './api/api.js';
 import {UpdateType, MenuItem} from './const.js';
+import Store from './api/store.js';
+import Provider from './api/provider.js';
 
-const AUTHORIZATION = `Basic iHG6PGr3zNr`;
+const AUTHORIZATION = `Basic iHG6PGr3zN`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
+const STORE_PREFIX = `big-trip-localstorage2`;
+const STORE_VER = `v13`;
+const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
+const store = new Store(STORE_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, store);
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -56,14 +63,14 @@ const createInfo = () => {
   newPointButton.addEventListener(`click`, newPointClickHandler);
 };
 
-const tripPresenter = new TripPresenter(eventsElement, siteMenu, pointsModel, destinationsModel, offersModel, filterModel, api);
+const tripPresenter = new TripPresenter(eventsElement, siteMenu, pointsModel, destinationsModel, offersModel, filterModel, apiWithProvider);
 
 destinationsModel.loading = true;
 offersModel.loading = true;
 
 tripPresenter.init();
 
-api.getTripPoints()
+apiWithProvider.getTripPoints()
   .then((points) => {
     pointsModel.setPoints(UpdateType.INIT, points);
   })
@@ -74,16 +81,28 @@ api.getTripPoints()
     createInfo();
   });
 
-api.getDestinations()
+apiWithProvider.getDestinations()
   .then((destinations) => {
-    setTimeout(() => destinationsModel.setDestinations(UpdateType.INIT, destinations), 5000);
+    setTimeout(() => destinationsModel.setDestinations(UpdateType.INIT, destinations), 4000);
   }).catch(() => {
     destinationsModel.setDestinations(UpdateType.INIT, []);
   });
 
-api.getOffers()
+apiWithProvider.getOffers()
   .then((offers) => {
-    setTimeout(() => offersModel.setOffers(UpdateType.INIT, offers), 7000);
+    setTimeout(() => offersModel.setOffers(UpdateType.INIT, offers), 6000);
   }).catch(() => {
     offersModel.setOffers(UpdateType.INIT, []);
   });
+
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/service-worker.js`);
+});
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
+});
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+  apiWithProvider.sync();
+});

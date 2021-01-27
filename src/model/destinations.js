@@ -34,17 +34,9 @@ export default class Destination extends Observer {
     return adaptedDestination;
   }
 
-  // в рамках ТЗ не понадобится
   static adaptToServer(destination) {
-    const adaptedDestination = Object.assign(
-        {},
-        destination,
-        {
-          description: destination.description.text,
-          pictures: destination.description.pictures
-        }
-    );
 
-    return adaptedDestination;
+
+    return destination;
   }
 }

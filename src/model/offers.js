@@ -38,4 +38,10 @@ export default class Offer extends Observer {
 
     return adaptedOffersOfType;
   }
+
+  static adaptToServer(offersOfType) {
+
+
+    return offersOfType;
+  }
 }

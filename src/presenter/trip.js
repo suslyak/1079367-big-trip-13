@@ -217,7 +217,7 @@ export default class Trip {
         break;
       case UserAction.ADD_POINT:
         this._pointNewPresenter.setSaving();
-        this._api.addPoint(update).then((response) => {
+        this._api.addTripPoint(update).then((response) => {
           this._pointsModel.addPoint(updateType, response);
         })
         .catch(() => {
@@ -226,7 +226,7 @@ export default class Trip {
         break;
       case UserAction.DELETE_POINT:
         this._pointPresenter[update.id].setViewState(PointPresenterViewState.DELETING);
-        this._api.deletePoint(update).then(() => {
+        this._api.deleteTripPoint(update).then(() => {
           this._pointsModel.deletePoint(updateType, update);
         })
         .catch(() => {
