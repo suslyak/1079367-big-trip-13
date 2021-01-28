@@ -1,7 +1,7 @@
 import PointsModel from '../model/points.js';
 import DestinationsModel from '../model/destinations.js';
 import OffersModel from '../model/offers.js';
-import {isOnline} from "../utils/common.js";
+import {isOnline} from '../utils/common.js';
 
 const getSyncedPoints = (items) => {
   return items.filter(({success}) => success)

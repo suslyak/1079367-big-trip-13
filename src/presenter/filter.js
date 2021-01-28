@@ -1,6 +1,6 @@
-import FilterView from "../view/trip-filters.js";
-import {render, RenderPosition, replace, remove} from "../utils/render.js";
-import {FilterType, UpdateType} from "../const.js";
+import FilterView from '../view/trip-filters.js';
+import {render, RenderPosition, replace, remove} from '../utils/render.js';
+import {FilterType, UpdateType} from '../const.js';
 
 import dayjs from 'dayjs';
 

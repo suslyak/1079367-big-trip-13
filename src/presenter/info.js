@@ -10,7 +10,7 @@ import {UpdateType} from '../const.js';
 export default class Info {
   constructor(tripInfoContainer, tripControlsContainer, pointsModel, filterModel) {
     this._tripInfoContainer = tripInfoContainer;
-    this._tripFilterContainer = tripControlsContainer[`filter`];
+    this._tripFilterContainer = tripControlsContainer.FILTER;
     this._pointsModel = pointsModel;
     this._filterModel = filterModel;
     this._tripInfoComponent = new TripInfo();

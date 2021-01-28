@@ -2,7 +2,7 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import AbstractView from './abstract.js';
-import {ChartParams} from '../const.js';
+import {ChartParameter} from '../const.js';
 
 const createStatisticsTemplate = () => {
   return `
@@ -84,7 +84,7 @@ const renderMoneyChart = (moneyCtx, points) => {
             display: false,
             drawBorder: false
           },
-          minBarLength: ChartParams.MIN_BAR_LENGTH
+          minBarLength: ChartParameter.MIN_BAR_LENGTH
         }],
       },
       legend: {
@@ -95,7 +95,7 @@ const renderMoneyChart = (moneyCtx, points) => {
       }
     },
     dataset: {
-      barThickness: ChartParams.BAR_THICKNESS
+      barThickness: ChartParameter.BAR_THICKNESS
     }
   });
 };
@@ -161,7 +161,7 @@ const renderTypeChart = (typeCtx, points) => {
             display: false,
             drawBorder: false
           },
-          minBarLength: ChartParams.MIN_BAR_LENGTH
+          minBarLength: ChartParameter.MIN_BAR_LENGTH
         }],
       },
       legend: {
@@ -172,7 +172,7 @@ const renderTypeChart = (typeCtx, points) => {
       }
     },
     dataset: {
-      barThickness: ChartParams.BAR_THICKNESS
+      barThickness: ChartParameter.BAR_THICKNESS
     }
   });
 };
@@ -240,7 +240,7 @@ const renderTimeChart = (timeCtx, points) => {
             display: false,
             drawBorder: false
           },
-          minBarLength: ChartParams.MIN_BAR_LENGTH
+          minBarLength: ChartParameter.MIN_BAR_LENGTH
         }],
       },
       legend: {
@@ -251,7 +251,7 @@ const renderTimeChart = (timeCtx, points) => {
       }
     },
     dataset: {
-      barThickness: ChartParams.BAR_THICKNESS
+      barThickness: ChartParameter.BAR_THICKNESS
     }
   });
 };
@@ -283,9 +283,9 @@ export default class Statistics extends AbstractView {
 
     const numberOfTypes = Array.from(new Set(points.map((point) => point.pointType))).length;
 
-    moneyCtx.height = ChartParams.BAR_HEIGHT * numberOfTypes;
-    typeCtx.height = ChartParams.BAR_HEIGHT * numberOfTypes;
-    timeCtx.height = ChartParams.BAR_HEIGHT * numberOfTypes;
+    moneyCtx.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
+    typeCtx.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
+    timeCtx.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
 
     this._moneyCart = renderMoneyChart(moneyCtx, points);
     this._typeChart = renderTypeChart(typeCtx, points);

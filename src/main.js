@@ -43,9 +43,9 @@ const filterModel = new FilterModel();
 
 const siteMenu = new SiteMenu(Object.values(MenuItem));
 
-const headerRenderPlaces = {
-  menu: {container: tripControlsElement, referenceElement: menuReferenceElement},
-  filter: tripControlsElement
+const headerRenderPlace = {
+  MENU: {container: tripControlsElement, referenceElement: menuReferenceElement},
+  FILTER: tripControlsElement
 };
 
 const newPointClickHandler = (evt) => {
@@ -54,20 +54,20 @@ const newPointClickHandler = (evt) => {
 };
 
 const renderMenu = () => {
-  const container = headerRenderPlaces.menu.container;
-  const position = headerRenderPlaces.menu.referenceElement;
+  const container = headerRenderPlace.MENU.container;
+  const position = headerRenderPlace.MENU.referenceElement;
   render(container, siteMenu, position);
 };
 
 const createInfo = () => {
-  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, pointsModel, filterModel);
-  const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
+  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlace, pointsModel, filterModel);
+  const newPointButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
   infoPresenter.init();
   renderMenu();
 
-  newPointButton.removeEventListener(`click`, newPointClickHandler);
-  newPointButton.addEventListener(`click`, newPointClickHandler);
+  newPointButtonElement.removeEventListener(`click`, newPointClickHandler);
+  newPointButtonElement.addEventListener(`click`, newPointClickHandler);
 };
 
 const tripPresenter = new TripPresenter(eventsElement, siteMenu, pointsModel, destinationsModel, offersModel, filterModel, apiWithProvider);
@@ -107,17 +107,17 @@ window.addEventListener(`load`, () => {
 });
 
 window.addEventListener(`offline`, () => {
-  document.title += ` [offline]`;
+  document.title += `[offline]`;
 });
 
 window.addEventListener(`online`, () => {
-  document.title = document.title.replace(` [offline]`, ``);
+  document.title = document.title.replace(`[offline]`, ``);
 
   apiWithProvider.sync((pointsToDeoffline) => {
-    const offlinedItems = eventsElement.querySelectorAll(`.offline`);
+    const offlinedItemsElements = eventsElement.querySelectorAll(`.offline`);
     const points = pointsModel.getPoints();
 
-    offlinedItems.forEach((item) => {
+    offlinedItemsElements.forEach((item) => {
       item.classList.remove(`offline`);
     });
 

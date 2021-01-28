@@ -14,7 +14,7 @@ const getSortingItems = (sorting, currentSorting) => {
     </div>`;
 };
 
-export default class Sorting extends AbstractView {
+export default class TripSort extends AbstractView {
   constructor(currentSorting) {
     super();
     this._currentSorting = currentSorting;
