@@ -1,7 +1,7 @@
 import PointsModel from '../model/points.js';
 import DestinationsModel from '../model/destinations.js';
 import OffersModel from '../model/offers.js';
-import {isOnline} from "../utils/common.js";
+import {isOnline} from '../utils/common.js';
 
 const getSyncedPoints = (items) => {
   return items.filter(({success}) => success)
@@ -123,7 +123,15 @@ export default class Provider {
     return Promise.resolve();
   }
 
+  _checkIfNeedSync() {
+    this._needSync = Object.values(this._pointsStore.getItems())
+        .some((item) => item.hasOwnProperty(`offlined`) && item.offlined === true);
+    return;
+  }
+
   sync(modelCallback) {
+    this._checkIfNeedSync();
+
     if (!this._needSync) {
       return Promise.resolve(new Error(`No need to sync`));
     }

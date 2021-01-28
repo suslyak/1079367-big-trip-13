@@ -18,15 +18,15 @@ export const FilterType = {
   PAST: `past`
 };
 
-export const ErrorMessages = {
-  WRONG_DESTINATION: `Такой пункт назначения невозможен. Выберите один из списка.`,
+export const ErrorMessage = {
+  WRONG_DESTINATION: `No such destination. Pick one from droplist`,
 };
 
-export const ErrorColors = {
+export const ErrorColor = {
   INPUT: `red`,
 };
 
-export const DefaultColors = {
+export const DefaultColor = {
   INPUT: `inherit`,
 };
 
@@ -38,7 +38,7 @@ export const SortType = {
   OFFERS: `offers`
 };
 
-export const TripPointTypes = [
+export const TripPointType = [
   `taxi`,
   `bus`,
   `train`,
@@ -56,7 +56,7 @@ export const MenuItem = {
   STATISTICS: `Stats`
 };
 
-export const ChartParams = {
+export const ChartParameter = {
   BAR_HEIGHT: 55,
   MIN_BAR_LENGTH: 50,
   BAR_THICKNESS: 44

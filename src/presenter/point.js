@@ -1,7 +1,7 @@
 import EditPointForm from '../view/edit-trip-point.js';
 import TripPoint from '../view/trip-point.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
-import {UserAction, UpdateType} from "../const.js";
+import {UserAction, UpdateType} from '../const.js';
 
 
 const Mode = {

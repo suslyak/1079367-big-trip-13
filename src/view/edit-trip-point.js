@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import SmartView from './smart.js';
-import {ErrorMessages, ErrorColors, DefaultColors, TripPointTypes} from '../const.js';
+import {ErrorMessage, ErrorColor, DefaultColor, TripPointType} from '../const.js';
 import {isOnline} from '../utils/common.js';
 
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import flatpickr from "flatpickr";
+import flatpickr from 'flatpickr';
 
-import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
 dayjs.extend(customParseFormat);
 
@@ -43,7 +43,7 @@ const getDestinationInfoTemplate = (destination) => {
   return ``;
 };
 
-export default class EditPointForm extends SmartView {
+export default class EditTripPoint extends SmartView {
   constructor(point = {}, destinations = [], offers = [], isDestinationsLoading = false, isOffersLoading = false) {
     super();
 
@@ -63,8 +63,6 @@ export default class EditPointForm extends SmartView {
     this._startDatepicker = null;
     this._endDatepicker = null;
 
-    // В принципе, не обязательно, т.к. в ТЗ может быть открыта одновременно только одна форма,
-    // но вдруг это изменится в будущем.
     this._inputId = nanoid(8);
 
     this._editClickHandler = this._editClickHandler.bind(this);
@@ -120,7 +118,7 @@ export default class EditPointForm extends SmartView {
   }
 
   getAvailableTypesTemplate(selectedType) {
-    return TripPointTypes.map((type) => {
+    return TripPointType.map((type) => {
       const isChecked = type === selectedType;
 
       return `
@@ -277,47 +275,34 @@ export default class EditPointForm extends SmartView {
   }
 
   _setPointTypeChangeHandlers() {
-    const pointTypeRadioButtonsContainer = this.getElement().querySelector(`.event__type-list`);
+    const pointTypeRadioButtonsContainerElement = this.getElement().querySelector(`.event__type-list`);
 
-    pointTypeRadioButtonsContainer.addEventListener(`click`, this._pointTypeChangeHandler);
+    pointTypeRadioButtonsContainerElement.addEventListener(`click`, this._pointTypeChangeHandler);
   }
 
   _setOffersToggleHandler() {
-    const offersContainer = this.getElement().querySelector(`.event__available-offers`);
-    if (offersContainer) {
-      offersContainer.addEventListener(`click`, this._offersToggleHandler);
+    const offersContainerElement = this.getElement().querySelector(`.event__available-offers`);
+    if (offersContainerElement) {
+      offersContainerElement.addEventListener(`click`, this._offersToggleHandler);
     }
   }
 
   _setDestinationChangeHandlers() {
-    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
+    const destinationInputElement = this.getElement().querySelector(`.event__input--destination`);
 
-    destinationInput.addEventListener(`change`, this._destinationChangeHandler);
+    destinationInputElement.addEventListener(`change`, this._destinationChangeHandler);
   }
 
   _setPriceChangeHandlers() {
-    const priceInput = this.getElement().querySelector(`.event__input--price`);
+    const priceInputElement = this.getElement().querySelector(`.event__input--price`);
 
-    priceInput.addEventListener(`change`, this._priceChangeHandler);
+    priceInputElement.addEventListener(`change`, this._priceChangeHandler);
   }
 
   _setPriceInputHandlers() {
-    const priceInput = this.getElement().querySelector(`.event__input--price`);
+    const priceInputElement = this.getElement().querySelector(`.event__input--price`);
 
-    priceInput.addEventListener(`input`, this._priceInputHandler);
-  }
-
-  // больше не нужно, но вдруг понадобится повесть еще событие
-  _setStartDateChangeHandlers() {
-    const startDateInput = this.getElement().querySelector(`input[name='event-start-time']`);
-    startDateInput.addEventListener(`change`, this._startDateChangeHandler);
-  }
-
-  // больше не нужно, но вдруг понадобится повесть еще событие
-  _setEndDateChangeHandlers() {
-    const endDateInput = this.getElement().querySelector(`input[name='event-end-time']`);
-
-    endDateInput.addEventListener(`change`, this._endDateChangeHandler);
+    priceInputElement.addEventListener(`input`, this._priceInputHandler);
   }
 
   setDeleteClickHandler(callback) {
@@ -358,7 +343,7 @@ export default class EditPointForm extends SmartView {
         destination: destinationFromValue || {}
       });
     } else {
-      evt.currentTarget.setCustomValidity(ErrorMessages.WRONG_DESTINATION);
+      evt.currentTarget.setCustomValidity(ErrorMessage.WRONG_DESTINATION);
       evt.currentTarget.reportValidity();
     }
   }
@@ -366,7 +351,7 @@ export default class EditPointForm extends SmartView {
   _priceChangeHandler(evt) {
     evt.preventDefault();
 
-    evt.target.value = evt.target.value.replace(/\D/g, ``); // на случай смены value кулхацкером не через ввод в инпут
+    evt.target.value = evt.target.value.replace(/\D/g, ``);
     this.updateData({
       cost: evt.target.value
     }, true);
@@ -404,19 +389,19 @@ export default class EditPointForm extends SmartView {
   }
 
   _datePopupCloseHandler() {
-    const datesInputs = this.getElement().querySelectorAll(`.event__input--time`);
+    const datesInputsElements = this.getElement().querySelectorAll(`.event__input--time`);
 
     if (!this._checkDates()) {
       this.getElement().querySelector(`.event__save-btn`).disabled = true;
 
-      datesInputs.forEach((input) => {
-        input.style.color = ErrorColors.INPUT;
+      datesInputsElements.forEach((input) => {
+        input.style.color = ErrorColor.INPUT;
       });
     } else {
       this.getElement().querySelector(`.event__save-btn`).disabled = false;
 
-      datesInputs.forEach((input) => {
-        input.style.color = DefaultColors.INPUT;
+      datesInputsElements.forEach((input) => {
+        input.style.color = DefaultColor.INPUT;
       });
     }
   }
@@ -453,11 +438,11 @@ export default class EditPointForm extends SmartView {
   }
 
   setEditClickHandler(callback) {
-    const editButton = this.getElement().querySelector(`.event__rollup-btn`);
+    const editButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
     this._callback.editClick = callback;
 
-    if (editButton) {
-      editButton.addEventListener(`click`, this._editClickHandler);
+    if (editButtonElement) {
+      editButtonElement.addEventListener(`click`, this._editClickHandler);
     }
   }
 
@@ -467,10 +452,10 @@ export default class EditPointForm extends SmartView {
       this._startDatepicker = null;
     }
 
-    const dateInput = this.getElement().querySelector(`input[name='event-start-time']`);
+    const dateInputElement = this.getElement().querySelector(`input[name='event-start-time']`);
 
     this._startDatepicker = flatpickr(
-        dateInput,
+        dateInputElement,
         {
           dateFormat: `d/m/y H:i`,
           defaultDate: this._data.start.format(`DD/MM/YY HH:mm`),
@@ -490,10 +475,10 @@ export default class EditPointForm extends SmartView {
       this._endDatepicker = null;
     }
 
-    const dateInput = this.getElement().querySelector(`input[name='event-end-time']`);
+    const dateInputElement = this.getElement().querySelector(`input[name='event-end-time']`);
 
     this._endDatepicker = flatpickr(
-        dateInput,
+        dateInputElement,
         {
           dateFormat: `d/m/y H:i`,
           defaultDate: this._data.end.format(`DD/MM/YY HH:mm`),

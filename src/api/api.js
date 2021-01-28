@@ -2,7 +2,6 @@ import PointsModel from '../model/points.js';
 import DestinationsModel from '../model/destinations.js';
 import OffersModel from '../model/offers.js';
 
-
 const Method = {
   GET: `GET`,
   PUT: `PUT`,

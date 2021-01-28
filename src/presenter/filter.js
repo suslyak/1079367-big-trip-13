@@ -1,6 +1,8 @@
-import FilterView from "../view/trip-filters.js";
-import {render, RenderPosition, replace, remove} from "../utils/render.js";
-import {FilterType, UpdateType} from "../const.js";
+import FilterView from '../view/trip-filters.js';
+import {render, RenderPosition, replace, remove} from '../utils/render.js';
+import {FilterType, UpdateType} from '../const.js';
+
+import dayjs from 'dayjs';
 
 export default class Filter {
   constructor(filterContainer, filterModel, pointModel) {
@@ -53,14 +55,17 @@ export default class Filter {
       {
         type: FilterType.EVERYTHING,
         name: `EVERYTHING`,
+        noPoints: !this._pointModel.getPoints().length
       },
       {
         type: FilterType.FUTURE,
         name: `FUTURE`,
+        noPoints: !this._pointModel.getPoints().some((point) => dayjs().isBefore(point.start))
       },
       {
         type: FilterType.PAST,
         name: `PAST`,
+        noPoints: !this._pointModel.getPoints().some((point) => point.end.isBefore(dayjs()))
       },
     ];
   }
