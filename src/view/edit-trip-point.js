@@ -2,6 +2,8 @@ import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import SmartView from './smart.js';
 import {ErrorMessages, ErrorColors, DefaultColors, TripPointTypes} from '../const.js';
+import {isOnline} from '../utils/common.js';
+
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import flatpickr from "flatpickr";
 
@@ -426,6 +428,17 @@ export default class EditPointForm extends SmartView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
+
+    if (!isOnline()) {
+      this._data = Object.assign(
+          {},
+          this._data,
+          {
+            offlined: true
+          }
+      );
+    }
+
     this._callback.submitClick(this.parseDataToPoint(this._data));
 
     return;

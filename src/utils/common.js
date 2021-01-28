@@ -24,3 +24,7 @@ export const updateItem = (items, update) => {
 export const isOnline = () => {
   return window.navigator.onLine;
 };
+
+export const findItem = (objects, id) => {
+  return objects.find((object) => object.id === id);
+};

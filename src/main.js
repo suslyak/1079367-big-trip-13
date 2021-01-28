@@ -6,6 +6,7 @@ import OffersModel from './model/offers.js';
 import FilterModel from './model/filter.js';
 import SiteMenu from './view/main-menu.js';
 import {render} from './utils/render.js';
+import {findItem} from './utils/common.js';
 import Api from './api/api.js';
 import {UpdateType, MenuItem} from './const.js';
 import Store from './api/store.js';
@@ -112,5 +113,16 @@ window.addEventListener(`offline`, () => {
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);
 
-  apiWithProvider.sync();
+  apiWithProvider.sync((pointsToDeoffline) => {
+    const offlinedItems = eventsElement.querySelectorAll(`.offline`);
+    const points = pointsModel.getPoints();
+
+    offlinedItems.forEach((item) => {
+      item.classList.remove(`offline`);
+    });
+
+    pointsToDeoffline.forEach((pointToDeoffline) => {
+      findItem(points, pointToDeoffline).offlined = false;
+    });
+  });
 });

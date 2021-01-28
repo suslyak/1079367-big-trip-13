@@ -123,16 +123,18 @@ export default class Provider {
     return Promise.resolve();
   }
 
-  sync() {
+  sync(modelCallback) {
     if (!this._needSync) {
       return Promise.resolve(new Error(`No need to sync`));
     }
 
     if (isOnline()) {
+      const pointsToDeoffline = [];
       const storePoints = Object.values(this._pointsStore.getItems())
           .map((point) => {
             if (point.hasOwnProperty(`offlined`)) {
               delete point.offlined;
+              pointsToDeoffline.push(point.id);
             }
 
             return point;
@@ -146,6 +148,8 @@ export default class Provider {
           const items = createPointsStoreStructure([...createdPoints, ...updatedPoints]);
 
           this._pointsStore.setItems(items);
+
+          modelCallback(pointsToDeoffline);
         });
     }
 
