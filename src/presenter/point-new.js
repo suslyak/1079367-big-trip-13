@@ -9,7 +9,7 @@ export default class PointNew {
     this._pointsModel = pointsModel;
     this._destinationsModel = destinationsModel;
     this._offersModel = offersModel;
-    this._possibleDestinations = this._destinationsModel.getDestinations();
+    this._destinations = [];
     this._allOffers = [];
 
     this._pointEditComponent = null;
@@ -18,9 +18,6 @@ export default class PointNew {
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
-
-    this._destinationsModel.addObserver(this._handleModelEvent);
-    this._offersModel.addObserver(this._handleModelEvent);
   }
 
   init() {
@@ -28,7 +25,20 @@ export default class PointNew {
       this.destroy();
     }
 
-    this._pointEditComponent = new EditPointForm(this._pointsModel.getEmptyPoint(), this._possibleDestinations, this._allOffers);
+    this._destinationsModel.addObserver(this._handleModelEvent);
+    this._offersModel.addObserver(this._handleModelEvent);
+
+    this._getDestinations();
+    this._getOffers();
+
+    this._pointEditComponent = new EditPointForm(
+        this._pointsModel.getEmptyPoint(),
+        this._destinations,
+        this._allOffers,
+        this._destinationsModel.isLoading(),
+        this._offersModel.isLoading()
+    );
+
     this._pointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._pointEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
@@ -37,10 +47,21 @@ export default class PointNew {
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  _getDestinations() {
+    this._destinations = this._destinationsModel.getDestinations();
+  }
+
+  _getOffers() {
+    this._allOffers = this._offersModel.getOffers();
+  }
+
   destroy() {
     if (this._pointEditComponent === null) {
       return;
     }
+
+    this._destinationsModel.removeObserver(this._handleModelEvent);
+    this._offersModel.removeObserver(this._handleModelEvent);
 
     this._pointEditComponent.destroyCalendars();
     remove(this._pointEditComponent);
@@ -90,7 +111,7 @@ export default class PointNew {
   _handleModelEvent(updateType) {
     switch (updateType) {
       case UpdateType.INIT:
-        this._possibleDestinations = this._destinationsModel.getDestinations();
+        this._destinations = this._destinationsModel.getDestinations();
         this._allOffers = this._offersModel.getOffers();
 
         if (this._pointEditComponent !== null) {

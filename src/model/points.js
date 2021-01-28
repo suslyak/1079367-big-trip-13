@@ -19,7 +19,7 @@ export default class Point extends Observer {
 
   getEmptyPoint() {
     return {
-      id: ``,
+      id: `new`,
       pointType: `flight`,
       selectedOffers: [],
       destination: {},

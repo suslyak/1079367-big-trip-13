@@ -8,12 +8,13 @@ export default class Destination extends Observer {
 
   setDestinations(updateType, destinations) {
     this._destinations = destinations.slice();
+    this.loading = false;
 
     this._notify(updateType);
   }
 
   getDestinations() {
-    return this._destinations.length ? this._destinations : [{name: `loading destinations..`, description: {text: ``, pictures: []}}];
+    return this._destinations;
   }
 
   static adaptToClient(destination) {
@@ -33,7 +34,6 @@ export default class Destination extends Observer {
     return adaptedDestination;
   }
 
-  // в рамках ТЗ не понадобится
   static adaptToServer(destination) {
     const adaptedDestination = Object.assign(
         {},

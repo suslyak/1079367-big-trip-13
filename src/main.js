@@ -1,18 +1,32 @@
 import InfoPresenter from './presenter/info.js';
 import TripPresenter from './presenter/trip.js';
 import PointsModel from './model/points.js';
-import DestinationsModel from "./model/destinations.js";
+import DestinationsModel from './model/destinations.js';
 import OffersModel from './model/offers.js';
 import FilterModel from './model/filter.js';
-import StatisticsView from "./view/statistics.js";
-import {render, remove, RenderPosition} from "./utils/render.js";
+import SiteMenu from './view/main-menu.js';
+import {render} from './utils/render.js';
+import {findItem} from './utils/common.js';
 import Api from './api/api.js';
 import {UpdateType, MenuItem} from './const.js';
+import Store from './api/store.js';
+import Provider from './api/provider.js';
 
-const AUTHORIZATION = `Basic iHG6PGr3zNr`;
+const AUTHORIZATION = `Basic iHG6PGr3zNtg`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
+const POINTS_STORE_PREFIX = `big-trip-points-localstorage`;
+const DESTINATIONS_STORE_PREFIX = `big-trip-destinations-localstorage`;
+const OFFERS_STORE_PREFIX = `big-trip-offers-localstorage`;
+const STORE_VER = `v13`;
+const POINTS_STORE_NAME = `${POINTS_STORE_PREFIX}-${STORE_VER}`;
+const DESTINATIONS_STORE_NAME = `${DESTINATIONS_STORE_PREFIX}-${STORE_VER}`;
+const OFFERS_STORE_NAME = `${OFFERS_STORE_PREFIX}-${STORE_VER}`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
+const pointsStore = new Store(POINTS_STORE_NAME, window.localStorage);
+const destinationsStore = new Store(DESTINATIONS_STORE_NAME, window.localStorage);
+const offersStore = new Store(OFFERS_STORE_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, pointsStore, destinationsStore, offersStore);
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -27,6 +41,8 @@ const destinationsModel = new DestinationsModel();
 const offersModel = new OffersModel();
 const filterModel = new FilterModel();
 
+const siteMenu = new SiteMenu(Object.values(MenuItem));
+
 const headerRenderPlaces = {
   menu: {container: tripControlsElement, referenceElement: menuReferenceElement},
   filter: tripControlsElement
@@ -37,42 +53,31 @@ const newPointClickHandler = (evt) => {
   tripPresenter.createPoint();
 };
 
+const renderMenu = () => {
+  const container = headerRenderPlaces.menu.container;
+  const position = headerRenderPlaces.menu.referenceElement;
+  render(container, siteMenu, position);
+};
+
 const createInfo = () => {
-  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, handleSiteMenuClick, pointsModel, filterModel);
+  const infoPresenter = new InfoPresenter(tripMainElement, headerRenderPlaces, pointsModel, filterModel);
   const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
 
   infoPresenter.init();
+  renderMenu();
 
   newPointButton.removeEventListener(`click`, newPointClickHandler);
   newPointButton.addEventListener(`click`, newPointClickHandler);
 };
 
-const tripPresenter = new TripPresenter(eventsElement, pointsModel, destinationsModel, offersModel, filterModel, api);
+const tripPresenter = new TripPresenter(eventsElement, siteMenu, pointsModel, destinationsModel, offersModel, filterModel, apiWithProvider);
+
+destinationsModel.loading = true;
+offersModel.loading = true;
+
 tripPresenter.init();
 
-const statisticsViewComponent = new StatisticsView();
-
-const handleSiteMenuClick = (menuItem, callback) => {
-  switch (menuItem) {
-    case MenuItem.POINTS:
-      tripPresenter.init();
-      callback(menuItem);
-      if (mainContainerElement.contains(statisticsViewComponent.getElement())) {
-        remove(statisticsViewComponent);
-      }
-      break;
-    case MenuItem.STATISTICS:
-      tripPresenter.destroy();
-      callback(menuItem);
-      if (!mainContainerElement.contains(statisticsViewComponent.getElement())) {
-        render(mainContainerElement, statisticsViewComponent, RenderPosition.BEFOREEND);
-      }
-      statisticsViewComponent.setCharts(pointsModel.getPoints());
-      break;
-  }
-};
-
-api.getTripPoints()
+apiWithProvider.getTripPoints()
   .then((points) => {
     pointsModel.setPoints(UpdateType.INIT, points);
   })
@@ -83,16 +88,41 @@ api.getTripPoints()
     createInfo();
   });
 
-api.getDestinations()
+apiWithProvider.getDestinations()
   .then((destinations) => {
-    setTimeout(() => destinationsModel.setDestinations(UpdateType.INIT, destinations), 5000);
+    destinationsModel.setDestinations(UpdateType.INIT, destinations);
   }).catch(() => {
     destinationsModel.setDestinations(UpdateType.INIT, []);
   });
 
-api.getOffers()
+apiWithProvider.getOffers()
   .then((offers) => {
-    setTimeout(() => offersModel.setOffers(UpdateType.INIT, offers), 7000);
+    offersModel.setOffers(UpdateType.INIT, offers);
   }).catch(() => {
     offersModel.setOffers(UpdateType.INIT, []);
   });
+
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/service-worker.js`);
+});
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+
+  apiWithProvider.sync((pointsToDeoffline) => {
+    const offlinedItems = eventsElement.querySelectorAll(`.offline`);
+    const points = pointsModel.getPoints();
+
+    offlinedItems.forEach((item) => {
+      item.classList.remove(`offline`);
+    });
+
+    pointsToDeoffline.forEach((pointToDeoffline) => {
+      findItem(points, pointToDeoffline).offlined = false;
+    });
+  });
+});

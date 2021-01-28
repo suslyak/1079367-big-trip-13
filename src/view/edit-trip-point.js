@@ -2,6 +2,8 @@ import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import SmartView from './smart.js';
 import {ErrorMessages, ErrorColors, DefaultColors, TripPointTypes} from '../const.js';
+import {isOnline} from '../utils/common.js';
+
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import flatpickr from "flatpickr";
 
@@ -42,7 +44,7 @@ const getDestinationInfoTemplate = (destination) => {
 };
 
 export default class EditPointForm extends SmartView {
-  constructor(point = {}, destinations = [], offers = []) {
+  constructor(point = {}, destinations = [], offers = [], isDestinationsLoading = false, isOffersLoading = false) {
     super();
 
     const {
@@ -57,7 +59,7 @@ export default class EditPointForm extends SmartView {
     this._destinations = destinations;
     this._offers = offers;
     this._possibleDestinationsNames = this._destinations.map((destination) => destination.name);
-    this._isEmpty = (point.id.length === 0);
+    this._isEmpty = point.id === `new`;
     this._startDatepicker = null;
     this._endDatepicker = null;
 
@@ -80,14 +82,10 @@ export default class EditPointForm extends SmartView {
 
     this._data = this.parsePointToData(point);
 
-    this._isDestinationLoading = this._destinations.length && this._destinations[0].name === `loading destinations..`;
-    this._isOffersLoading = this._offers[this._data.pointType]
-      ? Boolean(
-          this._offers[this._data.pointType].length
-          && this._offers[this._data.pointType][0].title === `loading offers..`)
-      : false;
+    this._isDestinationLoading = isDestinationsLoading;
+    this._isOffersLoading = isOffersLoading;
 
-    this._dataLoading = this._isDestinationLoading || this._isOffersLoading;
+    this._isDataLoading = this._isDestinationLoading || this._isOffersLoading;
 
     this._setInnerHandlers();
     this._setStartDatepicker();
@@ -156,6 +154,13 @@ export default class EditPointForm extends SmartView {
   }
 
   getOffersTemplate(availableOffers, selectedOffers) {
+    if (this._isOffersLoading) {
+      return `
+      <section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers loading..</h3>
+      </section>`;
+    }
+
     if (availableOffers.length) {
       return `
         <section class="event__section  event__section--offers">
@@ -188,7 +193,7 @@ export default class EditPointForm extends SmartView {
       isDeleting
     } = data;
 
-    const formDisabled = isDisabled || this._dataLoading || !this._checkDates();
+    const formDisabled = isDisabled || this._isDataLoading || !this._checkDates();
 
     const getCancelDeleteButton = () => {
       if (this._isEmpty) {
@@ -207,7 +212,7 @@ export default class EditPointForm extends SmartView {
                 <span class="visually-hidden">Choose event type</span>
                 <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
               </label>
-              <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${this._inputId}" type="checkbox" ${this._dataLoading ? `disabled` : ``}>
+              <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${this._inputId}" type="checkbox" ${this._isDataLoading ? `disabled` : ``}>
 
               <div class="event__type-list">
                 <fieldset class="event__type-group">
@@ -227,7 +232,7 @@ export default class EditPointForm extends SmartView {
                 type="text" name="event-destination"
                 value="${this._initDestinationInputValue(destination)}"
                 list="destination-list-${this._inputId}"
-                ${this._dataLoading ? `disabled` : ``}>
+                ${this._isDataLoading ? `disabled` : ``}>
               <datalist id="destination-list-${this._inputId}">
                 ${this.getDestinationsOptions()}
               </datalist>
@@ -246,7 +251,7 @@ export default class EditPointForm extends SmartView {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-${this._inputId}" type="text" name="event-price" value="${this._data.cost}" ${this._dataLoading ? `disabled` : ``}>
+              <input class="event__input  event__input--price" id="event-price-${this._inputId}" type="text" name="event-price" value="${this._data.cost}" ${this._isDataLoading ? `disabled` : ``}>
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit" ${formDisabled ? `disabled` : ``}>
@@ -423,6 +428,17 @@ export default class EditPointForm extends SmartView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
+
+    if (!isOnline()) {
+      this._data = Object.assign(
+          {},
+          this._data,
+          {
+            offlined: true
+          }
+      );
+    }
+
     this._callback.submitClick(this.parseDataToPoint(this._data));
 
     return;

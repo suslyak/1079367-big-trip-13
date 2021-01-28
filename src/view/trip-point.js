@@ -38,6 +38,7 @@ export default class TripPoint extends AbstractView {
       end = dayjs(),
       cost = ``,
       favorite = false,
+      offlined
     } = point;
 
     this._type = pointType;
@@ -47,6 +48,7 @@ export default class TripPoint extends AbstractView {
     this._end = end;
     this._cost = cost;
     this._favorite = favorite;
+    this._isFromOffline = offlined;
 
     this._editClickHandler = this._editClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
@@ -54,7 +56,7 @@ export default class TripPoint extends AbstractView {
 
   _createPointTemplate() {
     return `
-      <li class="trip-events__item">
+      <li class="trip-events__item ${this._isFromOffline ? `offline` : ``}">
         <div class="event">
         <time class="event__date" datetime="${this._start.format(`YYYY-MM-DDTHH:mm`)}">${this._start.format(`MMM DD`)}</time>
         <div class="event__type">

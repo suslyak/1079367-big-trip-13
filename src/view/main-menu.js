@@ -6,7 +6,7 @@ const generateLinks = (links) => {
   ).join(``);
 };
 
-export default class Menu extends AbstractView {
+export default class MainMenu extends AbstractView {
   constructor(links = []) {
     super();
     this._links = links;
