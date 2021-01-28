@@ -21,6 +21,6 @@
   margin-bottom: 0.4em;
   padding: 0.4em;
   border-radius: 0.2em;
-  background-color: #fee;
+  background: rgba(255, 208, 84, 0.3);
   color: #900;
 }

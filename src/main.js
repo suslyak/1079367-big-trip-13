@@ -11,15 +11,21 @@ import {UpdateType, MenuItem} from './const.js';
 import Store from './api/store.js';
 import Provider from './api/provider.js';
 
-const AUTHORIZATION = `Basic iHG6PGr3zNtt`;
+const AUTHORIZATION = `Basic iHG6PGr3zNtg`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
-const STORE_PREFIX = `big-trip-localstorage`;
+const POINTS_STORE_PREFIX = `big-trip-points-localstorage`;
+const DESTINATIONS_STORE_PREFIX = `big-trip-destinations-localstorage`;
+const OFFERS_STORE_PREFIX = `big-trip-offers-localstorage`;
 const STORE_VER = `v13`;
-const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
+const POINTS_STORE_NAME = `${POINTS_STORE_PREFIX}-${STORE_VER}`;
+const DESTINATIONS_STORE_NAME = `${DESTINATIONS_STORE_PREFIX}-${STORE_VER}`;
+const OFFERS_STORE_NAME = `${OFFERS_STORE_PREFIX}-${STORE_VER}`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
-const store = new Store(STORE_NAME, window.localStorage);
-const apiWithProvider = new Provider(api, store);
+const pointsStore = new Store(POINTS_STORE_NAME, window.localStorage);
+const destinationsStore = new Store(DESTINATIONS_STORE_NAME, window.localStorage);
+const offersStore = new Store(OFFERS_STORE_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, pointsStore, destinationsStore, offersStore);
 
 const pageHeaderElement = document.querySelector(`.page-header`);
 const pageMainElement = document.querySelector(`.page-main`);
@@ -83,14 +89,14 @@ apiWithProvider.getTripPoints()
 
 apiWithProvider.getDestinations()
   .then((destinations) => {
-    setTimeout(() => destinationsModel.setDestinations(UpdateType.INIT, destinations), 4000);
+    destinationsModel.setDestinations(UpdateType.INIT, destinations);
   }).catch(() => {
     destinationsModel.setDestinations(UpdateType.INIT, []);
   });
 
 apiWithProvider.getOffers()
   .then((offers) => {
-    setTimeout(() => offersModel.setOffers(UpdateType.INIT, offers), 6000);
+    offersModel.setOffers(UpdateType.INIT, offers);
   }).catch(() => {
     offersModel.setOffers(UpdateType.INIT, []);
   });
@@ -102,7 +108,9 @@ window.addEventListener(`load`, () => {
 window.addEventListener(`offline`, () => {
   document.title += ` [offline]`;
 });
+
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);
+
   apiWithProvider.sync();
 });

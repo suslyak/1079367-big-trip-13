@@ -57,7 +57,7 @@ export default class EditPointForm extends SmartView {
     this._destinations = destinations;
     this._offers = offers;
     this._possibleDestinationsNames = this._destinations.map((destination) => destination.name);
-    this._isEmpty = !point.id;
+    this._isEmpty = point.id === `new`;
     this._startDatepicker = null;
     this._endDatepicker = null;
 

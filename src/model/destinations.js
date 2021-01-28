@@ -35,8 +35,15 @@ export default class Destination extends Observer {
   }
 
   static adaptToServer(destination) {
+    const adaptedDestination = Object.assign(
+        {},
+        destination,
+        {
+          description: destination.description.text,
+          pictures: destination.description.pictures
+        }
+    );
 
-
-    return destination;
+    return adaptedDestination;
   }
 }

@@ -40,8 +40,18 @@ export default class Offer extends Observer {
   }
 
   static adaptToServer(offersOfType) {
+    const adaptedOffersOfType = Object.assign(
+        {},
+        offersOfType,
+        {
+          offers: offersOfType.offers
+            .map((offer) => ({
+              title: offer.title,
+              price: offer.cost
+            }))
+        }
+    );
 
-
-    return offersOfType;
+    return adaptedOffersOfType;
   }
 }
