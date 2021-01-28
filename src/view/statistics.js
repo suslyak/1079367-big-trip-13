@@ -263,7 +263,6 @@ export default class Statistics extends AbstractView {
     this._typeCart = null;
     this._moneyChart = null;
     this._timeChart = null;
-
   }
 
   getTemplate() {
@@ -277,18 +276,18 @@ export default class Statistics extends AbstractView {
       this._timeChart = null;
     }
 
-    const moneyCtx = this.getElement().querySelector(`.statistics__chart--money`);
-    const typeCtx = this.getElement().querySelector(`.statistics__chart--transport`);
-    const timeCtx = this.getElement().querySelector(`.statistics__chart--time`);
+    const moneyCtxElement = this.getElement().querySelector(`.statistics__chart--money`);
+    const typeCtxElement = this.getElement().querySelector(`.statistics__chart--transport`);
+    const timeCtxElement = this.getElement().querySelector(`.statistics__chart--time`);
 
     const numberOfTypes = Array.from(new Set(points.map((point) => point.pointType))).length;
 
-    moneyCtx.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
-    typeCtx.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
-    timeCtx.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
+    moneyCtxElement.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
+    typeCtxElement.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
+    timeCtxElement.height = ChartParameter.BAR_HEIGHT * numberOfTypes;
 
-    this._moneyCart = renderMoneyChart(moneyCtx, points);
-    this._typeChart = renderTypeChart(typeCtx, points);
-    this._timeCtx = renderTimeChart(timeCtx, points);
+    this._moneyCart = renderMoneyChart(moneyCtxElement, points);
+    this._typeChart = renderTypeChart(typeCtxElement, points);
+    this._timeCtx = renderTimeChart(timeCtxElement, points);
   }
 }

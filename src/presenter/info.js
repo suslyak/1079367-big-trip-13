@@ -57,14 +57,12 @@ export default class Info {
       return [`...`, `...`];
     };
 
-    const tripDestinationsGraph = getRoute();
-
     const tripTimeGap = {
       start: firstPoint ? firstPoint.start : dayjs(),
       end: lastPoint ? lastPoint.end : dayjs()
     };
 
-    this._tripInfoComponent = new TripInfo(tripDestinationsGraph, tripTimeGap);
+    this._tripInfoComponent = new TripInfo(getRoute(), tripTimeGap);
   }
 
   _renderInfo() {

@@ -4,7 +4,7 @@ import {sortings} from '../utils/sorting.js';
 const getSortingItems = (sorting, currentSorting) => {
   const {
     name,
-    disabled: isDisabled
+    isDisabled
   } = sorting;
 
   return `
@@ -17,8 +17,8 @@ const getSortingItems = (sorting, currentSorting) => {
 export default class TripSort extends AbstractView {
   constructor(currentSorting) {
     super();
-    this._currentSorting = currentSorting;
 
+    this._currentSorting = currentSorting;
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
   }
 

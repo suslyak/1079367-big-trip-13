@@ -87,7 +87,7 @@ export default class Provider {
         });
     }
 
-    this._pointsStore.setItem(point.id, PointsModel.adaptToServer(Object.assign({offlined: true}, point)));
+    this._pointsStore.setItem(point.id, PointsModel.adaptToServer(Object.assign({isOfflined: true}, point)));
 
     this._needSync = true;
 
@@ -103,7 +103,7 @@ export default class Provider {
         });
     }
 
-    this._pointsStore.setItem(point.id, PointsModel.adaptToServer(Object.assign({offlined: true}, point)));
+    this._pointsStore.setItem(point.id, PointsModel.adaptToServer(Object.assign({isOfflined: true}, point)));
 
     this._needSync = true;
 
@@ -123,12 +123,6 @@ export default class Provider {
     return Promise.resolve();
   }
 
-  _checkIfNeedSync() {
-    this._needSync = Object.values(this._pointsStore.getItems())
-        .some((item) => item.hasOwnProperty(`offlined`) && item.offlined === true);
-    return;
-  }
-
   sync(modelCallback) {
     this._checkIfNeedSync();
 
@@ -140,8 +134,8 @@ export default class Provider {
       const pointsToDeoffline = [];
       const storePoints = Object.values(this._pointsStore.getItems())
           .map((point) => {
-            if (point.hasOwnProperty(`offlined`)) {
-              delete point.offlined;
+            if (point.hasOwnProperty(`isOfflined`)) {
+              delete point.isOfflined;
               pointsToDeoffline.push(point.id);
             }
 
@@ -162,5 +156,11 @@ export default class Provider {
     }
 
     return Promise.reject(new Error(`Sync data failed`));
+  }
+
+  _checkIfNeedSync() {
+    this._needSync = Object.values(this._pointsStore.getItems())
+        .some((item) => item.hasOwnProperty(`isOfflined`) && item.isOfflined === true);
+    return;
   }
 }

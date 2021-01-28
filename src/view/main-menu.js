@@ -22,6 +22,17 @@ export default class MainMenu extends AbstractView {
       </nav>`;
   }
 
+  setMenuItem(menuItem) {
+    const items = this.getElement().querySelectorAll(`.trip-tabs__btn`);
+    const currentItem = this.getElement().querySelector(`[data-menulink-id=${menuItem}]`);
+
+    items.forEach((item) => {
+      item.classList.remove(`trip-tabs__btn--active`);
+    });
+
+    currentItem.classList.add(`trip-tabs__btn--active`);
+  }
+
   _menuClickHandler(evt) {
     evt.preventDefault();
     if (!evt.target.classList.contains(`trip-tabs__btn--active`)) {
@@ -33,16 +44,5 @@ export default class MainMenu extends AbstractView {
     this._callback.menuClick = callback;
     this.getElement().addEventListener(`click`, this._menuClickHandler);
 
-  }
-
-  setMenuItem(menuItem) {
-    const items = this.getElement().querySelectorAll(`.trip-tabs__btn`);
-    const currentItem = this.getElement().querySelector(`[data-menulink-id=${menuItem}]`);
-
-    items.forEach((item) => {
-      item.classList.remove(`trip-tabs__btn--active`);
-    });
-
-    currentItem.classList.add(`trip-tabs__btn--active`);
   }
 }

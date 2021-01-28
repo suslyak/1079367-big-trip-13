@@ -1,5 +1,6 @@
 import AbstractView from './abstract.js';
 import {getDuration} from '../utils/point.js';
+import {PointDefaultParameter} from '../const.js';
 
 import dayjs from 'dayjs';
 
@@ -30,14 +31,14 @@ export default class TripPoint extends AbstractView {
     super();
 
     const {
-      pointType = `flight`,
+      pointType = PointDefaultParameter.DEFAULT_TYPE,
       selectedOffers = [],
       destination = {},
       start = dayjs(),
       end = dayjs(),
-      cost = ``,
+      cost = 0,
       favorite = false,
-      offlined
+      isOfflined = false
     } = point;
 
     this._type = pointType;
@@ -47,10 +48,14 @@ export default class TripPoint extends AbstractView {
     this._end = end;
     this._cost = cost;
     this._favorite = favorite;
-    this._isFromOffline = offlined;
+    this._isFromOffline = isOfflined;
 
     this._editClickHandler = this._editClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+  }
+
+  getTemplate() {
+    return this._createPointTemplate();
   }
 
   _createPointTemplate() {
@@ -87,8 +92,14 @@ export default class TripPoint extends AbstractView {
       </li>`;
   }
 
-  getTemplate() {
-    return this._createPointTemplate();
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, this._favoriteClickHandler);
   }
 
   _editClickHandler(evt) {
@@ -99,15 +110,5 @@ export default class TripPoint extends AbstractView {
   _favoriteClickHandler(evt) {
     evt.preventDefault();
     this._callback.favoriteClick();
-  }
-
-  setEditClickHandler(callback) {
-    this._callback.editClick = callback;
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
-  }
-
-  setFavoriteClickHandler(callback) {
-    this._callback.favoriteClick = callback;
-    this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, this._favoriteClickHandler);
   }
 }

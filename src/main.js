@@ -122,7 +122,7 @@ window.addEventListener(`online`, () => {
     });
 
     pointsToDeoffline.forEach((pointToDeoffline) => {
-      findItem(points, pointToDeoffline).offlined = false;
+      findItem(points, pointToDeoffline).isOfflined = false;
     });
   });
 });

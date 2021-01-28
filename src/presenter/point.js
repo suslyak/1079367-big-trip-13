@@ -3,7 +3,6 @@ import TripPoint from '../view/trip-point.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
 import {UserAction, UpdateType} from '../const.js';
 
-
 const Mode = {
   DEFAULT: `DEFAULT`,
   EDITING: `EDITING`
@@ -88,22 +87,6 @@ export default class Point {
     remove(this._pointEditComponent);
   }
 
-  _replacePointToForm() {
-    replace(this._pointEditComponent, this._pointComponent);
-    document.addEventListener(`keydown`, this._escKeyDownHandler);
-
-    this._switchMode();
-
-    this._mode = Mode.EDITING;
-  }
-
-  _replaceFormToPoint() {
-    replace(this._pointComponent, this._pointEditComponent);
-    document.removeEventListener(`keydown`, this._escKeyDownHandler);
-
-    this._mode = Mode.DEFAULT;
-  }
-
   resetViewToDefault() {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceFormToPoint();
@@ -139,6 +122,22 @@ export default class Point {
         this._pointEditComponent.shake(resetFormState);
         break;
     }
+  }
+
+  _replacePointToForm() {
+    replace(this._pointEditComponent, this._pointComponent);
+    document.addEventListener(`keydown`, this._escKeyDownHandler);
+
+    this._switchMode();
+
+    this._mode = Mode.EDITING;
+  }
+
+  _replaceFormToPoint() {
+    replace(this._pointComponent, this._pointEditComponent);
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+
+    this._mode = Mode.DEFAULT;
   }
 
   _escKeyDownHandler(evt) {

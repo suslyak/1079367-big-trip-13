@@ -38,12 +38,6 @@ export default class Api {
       .then((item) => item.map(OffersModel.adaptToClient));
   }
 
-  _getClientModel(model, restUrl) {
-    return this._load({url: restUrl})
-      .then(Api.toJSON)
-      .then((item) => item.map(model.adaptToClient));
-  }
-
   updateTripPoint(point) {
     return this._load({
       url: `points/${point.id}`,
@@ -71,6 +65,12 @@ export default class Api {
       url: `points/${point.id}`,
       method: Method.DELETE
     });
+  }
+
+  _getClientModel(model, restUrl) {
+    return this._load({url: restUrl})
+      .then(Api.toJSON)
+      .then((item) => item.map(model.adaptToClient));
   }
 
   _load({

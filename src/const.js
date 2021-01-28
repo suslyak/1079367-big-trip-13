@@ -38,7 +38,7 @@ export const SortType = {
   OFFERS: `offers`
 };
 
-export const TripPointType = [
+export const TRIP_POINT_TYPES = [
   `taxi`,
   `bus`,
   `train`,
@@ -50,6 +50,10 @@ export const TripPointType = [
   `sightseeing`,
   `restaurant`
 ];
+
+export const PointDefaultParameter = {
+  DEFAULT_TYPE: `flight`
+};
 
 export const MenuItem = {
   POINTS: `Table`,

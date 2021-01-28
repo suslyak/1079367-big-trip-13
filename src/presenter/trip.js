@@ -82,20 +82,6 @@ export default class Trip {
     remove(prevSortingComponent);
   }
 
-  createPoint() {
-    if (!this._pointNewPresenter) {
-      return;
-    }
-
-    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._pointNewPresenter.init();
-  }
-
-  _unsubscribe() {
-    this._pointsModel.removeObserver(this._handleModelEvent);
-    this._filterModel.removeObserver(this._handleModelEvent);
-  }
-
   destroy() {
     this._unsubscribe();
     this._clearTrip({resetSorting: true});
@@ -108,6 +94,20 @@ export default class Trip {
     this._pointNewPresenter = null;
   }
 
+  createPoint() {
+    if (!this._pointNewPresenter) {
+      return;
+    }
+
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this._pointNewPresenter.init();
+  }
+
+  reinit() {
+    this._unsubscribe();
+    this.init();
+  }
+
   _getPoints() {
     const filterType = this._filterModel.getFilter();
     const points = this._pointsModel.getPoints();
@@ -116,6 +116,11 @@ export default class Trip {
     Object.values(sortings).find((sorting) => sorting.name === this._currentSorting).result(filtredPoints);
 
     return filtredPoints;
+  }
+
+  _unsubscribe() {
+    this._pointsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
   }
 
   _renderSorting() {
@@ -175,7 +180,7 @@ export default class Trip {
   _handleSiteMenuClick(menuItem) {
     switch (menuItem) {
       case MenuItem.POINTS:
-        this.init();
+        this.reinit();
         this._siteMenuComponent.setMenuItem(menuItem);
         if (this._tripContainer.contains(this._statisticsComponent.getElement())) {
           remove(this._statisticsComponent);
@@ -200,8 +205,7 @@ export default class Trip {
     this._currentSorting = sortType;
 
     this._clearTrip();
-    this._unsubscribe();
-    this.init();
+    this.reinit();
   }
 
   _handleViewAction(actionType, updateType, update) {
@@ -244,22 +248,19 @@ export default class Trip {
 
       case UpdateType.MINOR:
         this._clearTrip();
-        this._unsubscribe();
-        this.init();
+        this.reinit();
         break;
 
       case UpdateType.MAJOR:
         this._clearTrip({resetSorting: true});
-        this._unsubscribe();
-        this.init();
+        this.reinit();
         break;
 
       case UpdateType.INIT:
         this._isLoading = false;
 
         remove(this._loadingComponent);
-        this._unsubscribe();
-        this.init();
+        this.reinit();
         break;
     }
   }

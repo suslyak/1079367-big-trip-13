@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import SmartView from './smart.js';
-import {ErrorMessage, ErrorColor, DefaultColor, TripPointType} from '../const.js';
+import {ErrorMessage, ErrorColor, DefaultColor, TRIP_POINT_TYPES} from '../const.js';
 import {isOnline} from '../utils/common.js';
+import {PointDefaultParameter} from '../const.js';
 
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import flatpickr from 'flatpickr';
@@ -50,7 +51,7 @@ export default class EditTripPoint extends SmartView {
     const {
       start = dayjs(),
       end = dayjs(),
-      cost = ``
+      cost = 0
     } = point;
 
     this._start = start;
@@ -59,10 +60,9 @@ export default class EditTripPoint extends SmartView {
     this._destinations = destinations;
     this._offers = offers;
     this._possibleDestinationsNames = this._destinations.map((destination) => destination.name);
-    this._isEmpty = point.id === `new`;
+    this._isEmpty = point.id === null;
     this._startDatepicker = null;
     this._endDatepicker = null;
-
     this._inputId = nanoid(8);
 
     this._editClickHandler = this._editClickHandler.bind(this);
@@ -79,10 +79,8 @@ export default class EditTripPoint extends SmartView {
     this.parsePointToData = this.parsePointToData.bind(this);
 
     this._data = this.parsePointToData(point);
-
     this._isDestinationLoading = isDestinationsLoading;
     this._isOffersLoading = isOffersLoading;
-
     this._isDataLoading = this._isDestinationLoading || this._isOffersLoading;
 
     this._setInnerHandlers();
@@ -118,7 +116,7 @@ export default class EditTripPoint extends SmartView {
   }
 
   getAvailableTypesTemplate(selectedType) {
-    return TripPointType.map((type) => {
+    return TRIP_POINT_TYPES.map((type) => {
       const isChecked = type === selectedType;
 
       return `
@@ -172,6 +170,49 @@ export default class EditTripPoint extends SmartView {
     return ``;
   }
 
+  getTemplate() {
+    return this._createEditPointTemplate(this._data);
+  }
+
+  destroyCalendars() {
+    this._startDatepicker.destroy();
+    this._endDatepicker.destroy();
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setEditClickHandler(this._callback.editClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+    this.setFormSubmitHandler(this._callback.submitClick);
+    this._setStartDatepicker();
+    this._setEndDatepicker();
+  }
+
+  parsePointToData(point) {
+    return Object.assign(
+        {},
+        point,
+        {
+          availableOffers: this._offers[point.pointType] || [],
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
+        }
+    );
+  }
+
+  parseDataToPoint(data) {
+    data = Object.assign({}, data);
+    data.cost = data.cost !== `` ? parseInt(data.cost, 10) : 0;
+
+    delete data.availableOffers;
+    delete data.isDisabled;
+    delete data.isSaving;
+    delete data.isDeleting;
+
+    return data;
+  }
+
   _initDestinationInputValue(destination) {
     if (this._isDestinationLoading) {
       return `loading destinations..`;
@@ -182,10 +223,10 @@ export default class EditTripPoint extends SmartView {
 
   _createEditPointTemplate(data) {
     const {
-      pointType: type = `flight`,
+      pointType: type = PointDefaultParameter.DEFAULT_TYPE,
       destination = {},
       selectedOffers,
-      availableOffers = this._offers[`flight`],
+      availableOffers = this._offers[PointDefaultParameter.DEFAULT_TYPE],
       isDisabled,
       isSaving,
       isDeleting
@@ -198,7 +239,13 @@ export default class EditTripPoint extends SmartView {
         return `<button class="event__reset-btn" type="reset">Cancel</button>`;
       }
 
-      return `<button class="event__reset-btn" type="reset" ${formDisabled ? `disabled` : ``}>${isDeleting ? `Deleting...` : `Delete`}</button>`;
+      return `
+        <button
+          class="event__reset-btn"
+          type="reset" ${formDisabled ? `disabled` : ``}
+        >
+          ${isDeleting ? `Deleting...` : `Delete`}
+        </button>`;
     };
 
     return `
@@ -210,7 +257,12 @@ export default class EditTripPoint extends SmartView {
                 <span class="visually-hidden">Choose event type</span>
                 <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
               </label>
-              <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${this._inputId}" type="checkbox" ${this._isDataLoading ? `disabled` : ``}>
+              <input
+                class="event__type-toggle visually-hidden"
+                id="event-type-toggle-${this._inputId}"
+                type="checkbox"
+                ${this._isDataLoading ? `disabled` : ``}
+              >
 
               <div class="event__type-list">
                 <fieldset class="event__type-group">
@@ -238,10 +290,21 @@ export default class EditTripPoint extends SmartView {
 
             <div class="event__field-group  event__field-group--time">
               <label class="visually-hidden" for="event-start-time-${this._inputId}">From</label>
-              <input class="event__input  event__input--time" id="event-start-time-${this._inputId}" type="text" name="event-start-time" value="${this._start.format(`DD/MM/YY HH:mm`)}">
+              <input class="event__input event__input--time"
+                id="event-start-time-${this._inputId}"
+                type="text"
+                name="event-start-time"
+                value="${this._start.format(`DD/MM/YY HH:mm`)}"
+              >
               &mdash;
               <label class="visually-hidden" for="event-end-time-${this._inputId}">To</label>
-              <input class="event__input  event__input--time" id="event-end-time-${this._inputId}" type="text" name="event-end-time" value="${this._end.format(`DD/MM/YY HH:mm`)}">
+              <input
+                class="event__input event__input--time"
+                id="event-end-time-${this._inputId}"
+                type="text"
+                name="event-end-time"
+                value="${this._end.format(`DD/MM/YY HH:mm`)}"
+              >
             </div>
 
             <div class="event__field-group  event__field-group--price">
@@ -249,7 +312,14 @@ export default class EditTripPoint extends SmartView {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-${this._inputId}" type="text" name="event-price" value="${this._data.cost}" ${this._isDataLoading ? `disabled` : ``}>
+              <input
+                class="event__input event__input--price"
+                id="event-price-${this._inputId}"
+                type="text"
+                name="event-price"
+                value="${this._data.cost}"
+                ${this._isDataLoading ? `disabled` : ``}
+              >
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit" ${formDisabled ? `disabled` : ``}>
@@ -266,12 +336,73 @@ export default class EditTripPoint extends SmartView {
       </li>`;
   }
 
-  getTemplate() {
-    return this._createEditPointTemplate(this._data);
-  }
-
   _checkDates() {
     return this._data.start.isBefore(this._data.end);
+  }
+
+  _setStartDatepicker() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    const dateInputElement = this.getElement().querySelector(`input[name='event-start-time']`);
+
+    this._startDatepicker = flatpickr(
+        dateInputElement,
+        {
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._data.start.format(`DD/MM/YY HH:mm`),
+          enableTime: true,
+          onChange: this._startDateChangeHandler,
+          onClose: this._datePopupCloseHandler,
+          errorHandler: () => {
+            return;
+          }
+        }
+    );
+  }
+
+  _setEndDatepicker() {
+    if (this._endDatepicker) {
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
+
+    const dateInputElement = this.getElement().querySelector(`input[name='event-end-time']`);
+
+    this._endDatepicker = flatpickr(
+        dateInputElement,
+        {
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._data.end.format(`DD/MM/YY HH:mm`),
+          enableTime: true,
+          onChange: this._endDateChangeHandler,
+          onClose: this._datePopupCloseHandler,
+          errorHandler: () => {
+            return;
+          }
+        }
+    );
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteClickHandler);
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.submitClick = callback;
+    this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, this._formSubmitHandler);
+  }
+
+  setEditClickHandler(callback) {
+    const editButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
+    this._callback.editClick = callback;
+
+    if (editButtonElement) {
+      editButtonElement.addEventListener(`click`, this._editClickHandler);
+    }
   }
 
   _setPointTypeChangeHandlers() {
@@ -303,16 +434,6 @@ export default class EditTripPoint extends SmartView {
     const priceInputElement = this.getElement().querySelector(`.event__input--price`);
 
     priceInputElement.addEventListener(`input`, this._priceInputHandler);
-  }
-
-  setDeleteClickHandler(callback) {
-    this._callback.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteClickHandler);
-  }
-
-  setFormSubmitHandler(callback) {
-    this._callback.submitClick = callback;
-    this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, this._formSubmitHandler);
   }
 
   _editClickHandler(evt) {
@@ -419,7 +540,17 @@ export default class EditTripPoint extends SmartView {
           {},
           this._data,
           {
-            offlined: true
+            isOfflined: true
+          }
+      );
+    }
+
+    if (!this._data.id) {
+      this._data = Object.assign(
+          {},
+          this._data,
+          {
+            id: `new`
           }
       );
     }
@@ -435,99 +566,5 @@ export default class EditTripPoint extends SmartView {
     this._setPriceChangeHandlers();
     this._setPriceInputHandlers();
     this._setOffersToggleHandler();
-  }
-
-  setEditClickHandler(callback) {
-    const editButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
-    this._callback.editClick = callback;
-
-    if (editButtonElement) {
-      editButtonElement.addEventListener(`click`, this._editClickHandler);
-    }
-  }
-
-  _setStartDatepicker() {
-    if (this._startDatepicker) {
-      this._startDatepicker.destroy();
-      this._startDatepicker = null;
-    }
-
-    const dateInputElement = this.getElement().querySelector(`input[name='event-start-time']`);
-
-    this._startDatepicker = flatpickr(
-        dateInputElement,
-        {
-          dateFormat: `d/m/y H:i`,
-          defaultDate: this._data.start.format(`DD/MM/YY HH:mm`),
-          enableTime: true,
-          onChange: this._startDateChangeHandler,
-          onClose: this._datePopupCloseHandler,
-          errorHandler: () => {
-            return;
-          }
-        }
-    );
-  }
-
-  _setEndDatepicker() {
-    if (this._endDatepicker) {
-      this._endDatepicker.destroy();
-      this._endDatepicker = null;
-    }
-
-    const dateInputElement = this.getElement().querySelector(`input[name='event-end-time']`);
-
-    this._endDatepicker = flatpickr(
-        dateInputElement,
-        {
-          dateFormat: `d/m/y H:i`,
-          defaultDate: this._data.end.format(`DD/MM/YY HH:mm`),
-          enableTime: true,
-          onChange: this._endDateChangeHandler,
-          onClose: this._datePopupCloseHandler,
-          errorHandler: () => {
-            return;
-          }
-        }
-    );
-  }
-
-  destroyCalendars() {
-    this._startDatepicker.destroy();
-    this._endDatepicker.destroy();
-  }
-
-  restoreHandlers() {
-    this._setInnerHandlers();
-    this.setEditClickHandler(this._callback.editClick);
-    this.setDeleteClickHandler(this._callback.deleteClick);
-    this.setFormSubmitHandler(this._callback.submitClick);
-    this._setStartDatepicker();
-    this._setEndDatepicker();
-  }
-
-  parsePointToData(point) {
-    return Object.assign(
-        {},
-        point,
-        {
-          availableOffers: this._offers[point.pointType] || [],
-          isDisabled: false,
-          isSaving: false,
-          isDeleting: false
-        }
-    );
-  }
-
-  parseDataToPoint(data) {
-    data = Object.assign({}, data);
-    data.cost = data.cost !== `` ? parseInt(data.cost, 10) : 0;
-
-    delete data.availableOffers;
-    delete data.isDisabled;
-    delete data.isSaving;
-    delete data.isDeleting;
-
-    return data;
   }
 }

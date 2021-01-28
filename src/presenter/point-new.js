@@ -11,7 +11,6 @@ export default class PointNew {
     this._offersModel = offersModel;
     this._destinations = [];
     this._allOffers = [];
-
     this._pointEditComponent = null;
 
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
@@ -47,14 +46,6 @@ export default class PointNew {
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
-  _getDestinations() {
-    this._destinations = this._destinationsModel.getDestinations();
-  }
-
-  _getOffers() {
-    this._allOffers = this._offersModel.getOffers();
-  }
-
   destroy() {
     if (this._pointEditComponent === null) {
       return;
@@ -87,6 +78,14 @@ export default class PointNew {
     };
 
     this._pointEditComponent.shake(resetFormState);
+  }
+
+  _getDestinations() {
+    this._destinations = this._destinationsModel.getDestinations();
+  }
+
+  _getOffers() {
+    this._allOffers = this._offersModel.getOffers();
   }
 
   _handleFormSubmit(point) {

@@ -3,6 +3,7 @@ import AbstractView from './abstract.js';
 export default class TripCost extends AbstractView {
   constructor(cost = ``) {
     super();
+
     this._cost = cost;
   }
 

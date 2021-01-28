@@ -23,9 +23,9 @@ export const sortByTime = (a, b) => {
 };
 
 export const sortings = {
-  [SortType.DAY]: {name: SortType.DAY, result: (points) => points.sort(sortByStartDates), disabled: false},
-  [SortType.EVENT]: {name: SortType.EVENT, result: (points) => points, disabled: true},
-  [SortType.TIME]: {name: SortType.TIME, result: (points) => points.sort(sortByTime), disabled: false},
-  [SortType.PRICE]: {name: SortType.PRICE, result: (points) => points.sort(sortByPrice), disabled: false},
-  [SortType.OFFERS]: {name: SortType.OFFERS, result: (points) => points, disabled: true},
+  [SortType.DAY]: {name: SortType.DAY, result: (points) => points.sort(sortByStartDates), isDisabled: false},
+  [SortType.EVENT]: {name: SortType.EVENT, result: (points) => points, isDisabled: true},
+  [SortType.TIME]: {name: SortType.TIME, result: (points) => points.sort(sortByTime), isDisabled: false},
+  [SortType.PRICE]: {name: SortType.PRICE, result: (points) => points.sort(sortByPrice), isDisabled: false},
+  [SortType.OFFERS]: {name: SortType.OFFERS, result: (points) => points, isDisabled: true},
 };
