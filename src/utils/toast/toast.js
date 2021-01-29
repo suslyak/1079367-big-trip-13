@@ -2,20 +2,41 @@ import './toast.css';
 
 const SHOW_TIME = 5000;
 
-const toastContainer = document.createElement(`div`);
-toastContainer.classList.add(`toast-container`);
-document.body.append(toastContainer);
+const toastContainerElement = document.createElement(`div`);
 
-const toast = (message) => {
-  const toastItem = document.createElement(`div`);
-  toastItem.textContent = message;
-  toastItem.classList.add(`toast-item`);
-
-  toastContainer.append(toastItem);
-
+const hideToast = (toastElement) => {
   setTimeout(() => {
-    toastItem.remove();
+    toastElement.remove();
   }, SHOW_TIME);
 };
 
-export {toast};
+toastContainerElement.classList.add(`toast-container`);
+document.body.append(toastContainerElement);
+
+const makeToast = ({toastMessage, isSelfHide = true, toastModificator = ``} = {}) => {
+  const toastItemElement = document.createElement(`div`);
+  toastItemElement.textContent = toastMessage;
+  toastItemElement.classList.add(`toast-item`);
+
+  if (toastModificator) {
+    toastItemElement.classList.add(`toast-item--${toastModificator}`);
+  }
+
+  toastContainerElement.append(toastItemElement);
+
+  if (isSelfHide) {
+    hideToast(toastItemElement);
+  }
+
+  return toastItemElement;
+};
+
+const showSelfFadingGreenToast = (message) => {
+  return makeToast({toastMessage: message, isSelfHide: true, toastModificator: `green`});
+};
+
+const showPermanentYellowtoast = (message) => {
+  return makeToast({toastMessage: message, isSelfHide: false, toastModificator: `yellow`});
+};
+
+export {showSelfFadingGreenToast, showPermanentYellowtoast};

@@ -65,3 +65,8 @@ export const ChartParameter = {
   MIN_BAR_LENGTH: 50,
   BAR_THICKNESS: 44
 };
+
+export const Notification = {
+  ONLINE: `Network connection reestablished, you're online now`,
+  OFFLINE: `You're offline now, offline changes will be marked`
+};

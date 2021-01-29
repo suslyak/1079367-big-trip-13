@@ -8,9 +8,10 @@ import SiteMenu from './view/main-menu.js';
 import {render} from './utils/render.js';
 import {findItem} from './utils/common.js';
 import Api from './api/api.js';
-import {UpdateType, MenuItem} from './const.js';
+import {UpdateType, MenuItem, Notification} from './const.js';
 import Store from './api/store.js';
 import Provider from './api/provider.js';
+import {showSelfFadingGreenToast, showPermanentYellowtoast} from "./utils/toast/toast.js";
 
 const AUTHORIZATION = `Basic iHG6PGr3zNtg`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
@@ -106,12 +107,20 @@ window.addEventListener(`load`, () => {
   navigator.serviceWorker.register(`/service-worker.js`);
 });
 
+window.toast = null;
+
 window.addEventListener(`offline`, () => {
   document.title += `[offline]`;
+  window.toast = showPermanentYellowtoast(Notification.OFFLINE);
 });
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(`[offline]`, ``);
+
+  window.toast.remove();
+  window.toast = null;
+
+  showSelfFadingGreenToast(Notification.ONLINE);
 
   apiWithProvider.sync((pointsToDeoffline) => {
     const offlinedItemsElements = eventsElement.querySelectorAll(`.offline`);
